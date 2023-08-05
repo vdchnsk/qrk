@@ -1,9 +1,11 @@
 package main
 
 import (
-	"fmt"
+	"os"
+
+	"github.com/vdchnsk/i-go/repl"
 )
 
 func main() {
-	fmt.Println("i-go interpreter")
+	repl.Start(os.Stdin, os.Stdout)
 }
