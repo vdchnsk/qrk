@@ -1,20 +1,27 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/vdchnsk/i-go/ast"
 	"github.com/vdchnsk/i-go/lexer"
 	"github.com/vdchnsk/i-go/token"
 )
 
 type Parser struct {
-	l *lexer.Lexer
+	lexer *lexer.Lexer
 
 	currToken token.Token
 	peekToken token.Token
+
+	errors []string
 }
 
 func NewParser(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{
+		lexer:  l,
+		errors: []string{},
+	}
 
 	// call NextToken twice to have currToken and peekToken both set
 	p.NextToken()
@@ -23,16 +30,28 @@ func NewParser(l *lexer.Lexer) *Parser {
 	return p
 }
 
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+func (p *Parser) PeekError(t token.TokenType) {
+	msg := fmt.Sprintf(
+		"expected next token to be %s, got %s instead",
+		t, p.peekToken.Type,
+	)
+	p.errors = append(p.errors, msg)
+}
+
 func (p *Parser) NextToken() {
 	p.currToken = p.peekToken
-	p.peekToken = p.l.NextToken()
+	p.peekToken = p.lexer.NextToken()
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
 
-	for p.currToken.Type != token.EOF {
+	for !p.currTokenIs(token.EOF) {
 		statement := p.parseStatement()
 
 		if statement != nil {
@@ -83,5 +102,6 @@ func (p *Parser) expectPeek(expectedToken token.TokenType) bool {
 		return true
 	}
 
+	p.PeekError(expectedToken)
 	return false
 }
