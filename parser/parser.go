@@ -8,13 +8,35 @@ import (
 	"github.com/vdchnsk/i-go/token"
 )
 
+const (
+	_ int = iota
+	LOWEST
+	EQUALS
+	LESSGREATER
+	SUM
+	PRODUCT
+	PREFIX
+	CALL
+)
+
 type Parser struct {
 	lexer *lexer.Lexer
 
 	currToken token.Token
 	peekToken token.Token
 
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
+
 	errors []string
+}
+
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tokenType] = fn
+}
+
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
 }
 
 func NewParser(l *lexer.Lexer) *Parser {
@@ -26,6 +48,11 @@ func NewParser(l *lexer.Lexer) *Parser {
 	// call NextToken twice to have currToken and peekToken both set
 	p.NextToken()
 	p.NextToken()
+
+	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefix(token.IDENT, p.parseIdentifer)
+
+	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 
 	return p
 }
@@ -54,13 +81,19 @@ func (p *Parser) ParseProgram() *ast.Program {
 	for !p.currTokenIs(token.EOF) {
 		statement := p.parseStatement()
 
-		if statement != nil {
-			program.Statements = append(program.Statements, statement)
-		}
+		program.Statements = append(program.Statements, statement)
+
 		p.NextToken()
 	}
 
 	return program
+}
+
+func (p *Parser) parseIdentifer() ast.Expression {
+	return &ast.Identifier{
+		Token: p.currToken,
+		Value: p.currToken.Literal,
+	}
 }
 
 func (p *Parser) parseStatement() ast.Statement {
@@ -70,8 +103,32 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
+		return p.parseExpressionStatement()
+	}
+}
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	statement := &ast.ExpressionStatement{Token: p.currToken}
+
+	statement.Value = p.parseExpression(LOWEST)
+
+	if p.expectPeek(token.SEMICOLON) {
+		p.NextToken()
+	}
+
+	return statement
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixParseFns[p.currToken.Type]
+
+	if prefix == nil {
 		return nil
 	}
+
+	leftExp := prefix()
+
+	return leftExp
 }
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
@@ -119,3 +176,8 @@ func (p *Parser) expectPeek(expectedToken token.TokenType) bool {
 	p.PeekError(expectedToken)
 	return false
 }
+
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
