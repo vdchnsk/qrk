@@ -37,10 +37,18 @@ func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 func (i *Identifier) expressionNode()      {}
 
 type LetStatement struct {
-	Token      token.Token
+	Token      token.Token // "let" token
 	Identifier *Identifier
 	Value      Expression
 }
 
 func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
 func (ls *LetStatement) statementNode()       {}
+
+type ReturnStatement struct {
+	Token token.Token // "return" token
+	Value Expression
+}
+
+func (ls *ReturnStatement) TokenLiteral() string { return ls.Token.Literal }
+func (ls *ReturnStatement) statementNode()       {}
