@@ -104,9 +104,18 @@ type ExpressionStatement struct {
 func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
 func (es *ExpressionStatement) statementNode()       {}
 func (es *ExpressionStatement) ToString() string {
-	if es.Value != nil {
-		return es.Value.ToString()
+	if es.Value == nil {
+		return ""
 	}
 
-	return ""
+	return es.Value.ToString()
 }
+
+type IntegerLiteral struct {
+	Token token.Token // INT token
+	Value int64
+}
+
+func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
+func (il *IntegerLiteral) expressionNode()      {}
+func (il *IntegerLiteral) ToString() string     { return il.Token.Literal }

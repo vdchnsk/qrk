@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/vdchnsk/i-go/ast"
 	"github.com/vdchnsk/i-go/lexer"
@@ -51,6 +52,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifer)
+	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 
@@ -94,6 +96,21 @@ func (p *Parser) parseIdentifer() ast.Expression {
 		Token: p.currToken,
 		Value: p.currToken.Literal,
 	}
+}
+
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	intLit := &ast.IntegerLiteral{Token: p.currToken}
+
+	value, err := strconv.ParseInt(p.currToken.Literal, 0, 64)
+	if err != nil {
+		msg := fmt.Sprintf("could not parse %q as integer", p.currToken.Literal)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+
+	intLit.Value = value
+
+	return intLit
 }
 
 func (p *Parser) parseStatement() ast.Statement {
