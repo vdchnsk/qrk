@@ -57,8 +57,41 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
+	p.registerInfix(token.PLUS, p.parseInfixExpression)
+	p.registerInfix(token.MINUS, p.parseInfixExpression)
+	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
+	p.registerInfix(token.SLASH, p.parseInfixExpression)
+	p.registerInfix(token.GT, p.parseInfixExpression)
+	p.registerInfix(token.LT, p.parseInfixExpression)
+	p.registerInfix(token.EQ, p.parseInfixExpression)
+	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
 
 	return p
+}
+
+var precedences = map[token.TokenType]int{
+	token.EQ:       EQUALS,
+	token.NOT_EQ:   EQUALS,
+	token.LT:       LESSGREATER,
+	token.GT:       LESSGREATER,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.SLASH:    PRODUCT,
+	token.ASTERISK: PRODUCT,
+}
+
+func (p *Parser) peekPrecedence() int {
+	if precedence, ok := precedences[p.peekToken.Type]; ok {
+		return precedence
+	}
+	return LOWEST
+}
+
+func (p *Parser) currPrecedence() int {
+	if precedence, ok := precedences[p.currToken.Type]; ok {
+		return precedence
+	}
+	return LOWEST
 }
 
 func (p *Parser) Errors() []string {
@@ -118,6 +151,20 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return prefExp
 }
 
+func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	infExp := &ast.InfixExpression{
+		Token:    p.currToken,
+		Operator: p.currToken.Literal,
+		Left:     left,
+	}
+
+	precedence := p.currPrecedence()
+	p.NextToken()
+	infExp.Right = p.parseExpression(precedence)
+
+	return infExp
+}
+
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	intLit := &ast.IntegerLiteral{Token: p.currToken}
 
@@ -149,7 +196,7 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 	statement.Value = p.parseExpression(LOWEST)
 
-	if p.expectPeek(token.SEMICOLON) {
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.NextToken()
 	}
 
@@ -158,13 +205,23 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.currToken.Type]
-
 	if prefix == nil {
 		p.noPrefixParseFnError(p.currToken.Type)
 		return nil
 	}
 
 	leftExp := prefix()
+
+	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
+		infix := p.infixParseFns[p.peekToken.Type]
+		if infix == nil {
+			return leftExp
+		}
+
+		p.NextToken()
+
+		leftExp = infix(leftExp)
+	}
 
 	return leftExp
 }
@@ -205,8 +262,12 @@ func (p *Parser) currTokenIs(expectedCurrentToken token.TokenType) bool {
 	return p.currToken.Type == expectedCurrentToken
 }
 
+func (p *Parser) peekTokenIs(expectedPeekToken token.TokenType) bool {
+	return p.peekToken.Type == expectedPeekToken
+}
+
 func (p *Parser) expectPeek(expectedToken token.TokenType) bool {
-	if p.peekToken.Type == expectedToken {
+	if p.peekTokenIs(expectedToken) {
 		p.NextToken()
 		return true
 	}
