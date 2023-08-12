@@ -1,12 +1,16 @@
-### I-go
+### i-go interpreter
 
 ### 🚀 How to run locally
 
-- have go installed locally
+- have **go** installed locally
+
+- install dependecies
 
 ```bash
-go get
+go mod download
 ```
+
+- launch
 
 ```bash
 make run
