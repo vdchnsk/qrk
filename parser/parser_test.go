@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/vdchnsk/i-go/ast"
@@ -199,4 +200,85 @@ func TestIntegerExpression(t *testing.T) {
 			"5", ident.TokenLiteral(),
 		)
 	}
+}
+
+func TestParsingPrefixExpressions(t *testing.T) {
+	prefixTests := []struct {
+		input        string
+		operator     string
+		integerValue int64
+	}{
+		{"!5;", "!", 5},
+		{"-42;", "-", 42},
+	}
+
+	for _, tt := range prefixTests {
+		lexer := lexer.NewLexer(tt.input)
+		parser := NewParser(lexer)
+		program := parser.ParseProgram()
+
+		checkParserErrors(t, parser)
+
+		expectedAmountOfStatements := 1
+		if len(program.Statements) != 1 {
+			t.Fatalf(
+				"program.Statemtnts length=%d, expected=%d",
+				len(program.Statements), expectedAmountOfStatements,
+			)
+		}
+
+		statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf(
+				"program.Statements[0] is not ast.ExpressionStatement, got=%T",
+				program.Statements[0],
+			)
+		}
+
+		expression, ok := statement.Value.(*ast.PrefixExpression)
+		if !ok {
+			t.Fatalf(
+				"program.Statements[0] is not ast.PrefixExpression, got=%T",
+				statement.Value,
+			)
+		}
+		if expression.Operator != tt.operator {
+			t.Fatalf(
+				"expression.Operator is not '%s'. got=%s",
+				tt.operator, expression.Operator,
+			)
+		}
+
+		if !testIntegerLiteral(t, expression.Right, tt.integerValue) {
+			return
+		}
+	}
+}
+
+func testIntegerLiteral(t *testing.T, il ast.Expression, value int64) bool {
+	intLit, ok := il.(*ast.IntegerLiteral)
+	if !ok {
+		t.Errorf(
+			"il is not *ast.IntegerLiteral, got=%T",
+			intLit,
+		)
+		return false
+	}
+
+	if intLit.Value != value {
+		t.Errorf(
+			"intlit.Value is not %d, got=%d",
+			value, intLit.Value,
+		)
+	}
+
+	if intLit.TokenLiteral() != fmt.Sprintf("%d", value) {
+		t.Errorf(
+			"intLit.TokenLiteral is not %d, got=%s",
+			value, intLit.TokenLiteral(),
+		)
+		return false
+	}
+
+	return true
 }
