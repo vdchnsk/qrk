@@ -111,6 +111,23 @@ func (es *ExpressionStatement) ToString() string {
 	return es.Value.ToString()
 }
 
+type BlockStatement struct {
+	Token      token.Token // the { token
+	Statements []Statement
+}
+
+func (bs *BlockStatement) statementNode()       {}
+func (bs *BlockStatement) TokenLiteral() string { return bs.Token.Literal }
+func (bs *BlockStatement) ToString() string {
+	var out bytes.Buffer
+
+	for _, s := range bs.Statements {
+		out.WriteString(s.ToString())
+	}
+
+	return out.String()
+}
+
 type IntegerLiteral struct {
 	Token token.Token // INT token
 	Value int64
@@ -156,6 +173,31 @@ func (ie *InfixExpression) ToString() string {
 	out.WriteString(" " + ie.Operator + " ")
 	out.WriteString(ie.Right.ToString())
 	out.WriteString(")")
+
+	return out.String()
+}
+
+type IfExpression struct {
+	Token       token.Token // The token "if"
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ife *IfExpression) TokenLiteral() string { return ife.Token.Literal }
+func (ife *IfExpression) expressionNode()      {}
+func (ife *IfExpression) ToString() string {
+	var out bytes.Buffer
+
+	out.WriteString("if ")
+	out.WriteString(ife.Condition.ToString())
+	out.WriteString(" ")
+	out.WriteString(ife.Consequence.ToString())
+
+	if ife.Alternative != nil {
+		out.WriteString("else ")
+		out.WriteString(ife.Alternative.ToString())
+	}
 
 	return out.String()
 }

@@ -608,3 +608,76 @@ func TestBooleanExpression(t *testing.T) {
 		)
 	}
 }
+
+func TestIfElseExpression(t *testing.T) {
+	input := `if (x < y) { x } else { y }`
+
+	lexer := lexer.NewLexer(input)
+	parser := NewParser(lexer)
+
+	program := parser.ParseProgram()
+	checkParserErrors(t, parser)
+
+	expectedAmountOfStatements := 1
+	if len(program.Statements) != expectedAmountOfStatements {
+		t.Fatalf(
+			"program.Statemtnts length=%d, expected=%d",
+			len(program.Statements), expectedAmountOfStatements,
+		)
+	}
+
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf(
+			"program.statements is not ast.expressionstatement, got=%T",
+			program.Statements[0],
+		)
+	}
+	expression, ok := statement.Value.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf(
+			"statement.Value is not ast.IfExpression, got=%T",
+			statement.Value,
+		)
+	}
+
+	if len(expression.Consequence.Statements) != 1 {
+		t.Fatalf(
+			"wrong amount of consequence statemetns got=%d",
+			len(expression.Consequence.Statements),
+		)
+	}
+	conseqeneceExpression, ok := expression.Consequence.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf(
+			"conseqence is not expression got=%T",
+			expression.Consequence.Statements[0],
+		)
+	}
+	if !testIdentifier(t, conseqeneceExpression.Value, "x") {
+		t.Fatalf(
+			"identifer of consequence expression in is not, got=%T", // TODO
+			conseqeneceExpression.Value,
+		)
+	}
+	if len(expression.Alternative.Statements) != 1 {
+		t.Fatalf(
+			"expected 1 alternative, got=%T",
+			expression.Alternative.Statements,
+		)
+	}
+
+	alternativeExpression, ok := expression.Alternative.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf(
+			"conseqence is not expression got=%T",
+			expression.Alternative.Statements[0],
+		)
+	}
+	if !testIdentifier(t, alternativeExpression.Value, "y") {
+		t.Fatalf(
+			"identifer of consequence expression in is not, got=%T", // TODO
+			conseqeneceExpression.Value,
+		)
+	}
+}
