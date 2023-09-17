@@ -681,3 +681,62 @@ func TestIfElseExpression(t *testing.T) {
 		)
 	}
 }
+
+func TestFuncLiteral(t *testing.T) {
+	input := `fn(x, y) { x + y; }`
+
+	lexer := lexer.NewLexer(input)
+	parser := NewParser(lexer)
+
+	program := parser.ParseProgram()
+	checkParserErrors(t, parser)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf(
+			"program.Body does not contain %d statements, got %d\n",
+			1, len(program.Statements),
+		)
+	}
+
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf(
+			"program.Statements[0] is not ast.ExpressionStatement, got=%T",
+			program.Statements[0],
+		)
+	}
+
+	function, ok := statement.Value.(*ast.FuncLiteral)
+	if !ok {
+		t.Fatalf(
+			"function is not ast.FuncLiteral, got=%T",
+			statement.Value,
+		)
+	}
+	if len(function.Parameters) != 2 {
+		t.Fatalf(
+			"function received unexpected amount of parameters, waited 2, got=%d\n",
+			len(function.Parameters),
+		)
+	}
+
+	testLiteralExpression(t, function.Parameters[0], "x")
+	testLiteralExpression(t, function.Parameters[1], "y")
+
+	if len(function.Body.Statements) != 1 {
+		t.Fatalf(
+			"function body contains unexpected amount of statements, waited 1, got=%d\n",
+			len(function.Body.Statements),
+		)
+	}
+
+	functionBodyStatement, ok := function.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf(
+			"function.Body.Statements[0] is not ast.BlockStatement, got=%T",
+			len(function.Body.Statements),
+		)
+	}
+
+	testInfixExpression(t, functionBodyStatement.Value, "x", "+", "y")
+}

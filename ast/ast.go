@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/vdchnsk/i-go/token"
 )
@@ -198,6 +199,33 @@ func (ife *IfExpression) ToString() string {
 		out.WriteString("else ")
 		out.WriteString(ife.Alternative.ToString())
 	}
+
+	return out.String()
+}
+
+type FuncLiteral struct {
+	Token      token.Token // The token "fn"
+	Parameters []*Identifier
+	Body       BlockStatement
+}
+
+func (fl *FuncLiteral) TokenLiteral() string { return fl.Token.Literal }
+func (fl *FuncLiteral) expressionNode()      {}
+func (fl *FuncLiteral) ToString() string {
+	var out bytes.Buffer
+
+	out.WriteString("fn ")
+	out.WriteString(fl.TokenLiteral())
+
+	params := []string{}
+	for _, parameter := range fl.Parameters {
+		params = append(params, parameter.ToString())
+	}
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ","))
+	out.WriteString(")")
+
+	out.WriteString(fl.Body.ToString())
 
 	return out.String()
 }
