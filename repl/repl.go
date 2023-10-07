@@ -12,8 +12,8 @@ import (
 const PRMOPT = "> "
 const REPL_WELCOME_MESSAGE = `
    _             
-  (_)______ ____ 
- / /___/ _  / _ \
+  (_)______  ___ 
+ / /___/ _ \/ _ \
 /_/    \_  /\___/
       /___/      
 `
