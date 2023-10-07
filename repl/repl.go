@@ -6,12 +6,20 @@ import (
 	"io"
 
 	"github.com/vdchnsk/i-go/lexer"
-	"github.com/vdchnsk/i-go/token"
+	"github.com/vdchnsk/i-go/parser"
 )
 
 const PRMOPT = "> "
+const REPL_WELCOME_MESSAGE = `
+   _             
+  (_)______ ____ 
+ / /___/ _  / _ \
+/_/    \_  /\___/
+      /___/      
+`
 
 func Start(in io.Reader, out io.Writer) {
+	fmt.Print(REPL_WELCOME_MESSAGE)
 	scanner := bufio.NewScanner(in)
 
 	for {
@@ -24,9 +32,21 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 		lexer := lexer.NewLexer(line)
+		parser := parser.NewParser(lexer)
 
-		for tok := lexer.NextToken(); tok.Type != token.EOF; tok = lexer.NextToken() {
-			fmt.Printf("%+v\n", tok)
+		program := parser.ParseProgram()
+		if len(parser.Errors()) != 0 {
+			printParserErrors(out, parser.Errors())
+			continue
 		}
+		io.WriteString(out, program.ToString())
+		io.WriteString(out, "\n")
+	}
+}
+
+func printParserErrors(out io.Writer, errors []string) {
+	io.WriteString(out, "Syntax error! \n")
+	for _, msg := range errors {
+		io.WriteString(out, "\t"+msg+"\n")
 	}
 }
