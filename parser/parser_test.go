@@ -6,6 +6,7 @@ import (
 
 	"github.com/vdchnsk/i-go/ast"
 	"github.com/vdchnsk/i-go/lexer"
+	"github.com/vdchnsk/i-go/utils"
 )
 
 func TestLetStatement(t *testing.T) {
@@ -549,6 +550,10 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"!(true == true)",
 			"(!(true == true))",
 		},
+		{
+			"a + add(b * c, e) + d",
+			"((a + add((b * c), e)) + d)",
+		},
 	}
 
 	for _, tt := range tests {
@@ -560,7 +565,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 
 		actualProgram := program.ToString()
 
-		if actualProgram != tt.expectedProgram {
+		if utils.RemoveWhitespaces(actualProgram) != utils.RemoveWhitespaces(tt.expectedProgram) {
 			t.Fatalf(
 				"got program output=%s, expected=%s",
 				actualProgram, tt.expectedProgram,
@@ -791,6 +796,107 @@ func TestFuncParams(t *testing.T) {
 
 		for index := range funcParams {
 			testLiteralExpression(t, funcParams[index], tt.expectedOutput[index])
+		}
+	}
+}
+
+func TestCallExpression(t *testing.T) {
+	input := "add(3, 14);"
+
+	lexer := lexer.NewLexer(input)
+	parser := NewParser(lexer)
+	program := parser.ParseProgram()
+
+	checkParserErrors(t, parser)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf(
+			"program.Body does not contain %d statements, got %d\n",
+			1, len(program.Statements),
+		)
+	}
+
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf(
+			"program.Statements[0] is not ast.ExpressionStatement, got=%T",
+			program.Statements[0],
+		)
+	}
+
+	callExpression, ok := statement.Value.(*ast.CallExpression)
+	if !ok {
+		t.Fatalf(
+			"function is not ast.CallExpession, got=%T",
+			statement.Value,
+		)
+	}
+	if !testIdentifier(t, callExpression.Function, "add") {
+		t.Fatalf(
+			"expression got wrong identifier, expected=%s",
+			"add",
+		)
+	}
+
+	if len(callExpression.Argments) != 2 {
+		t.Fatalf(
+			"call expression got unexpected amount of arguments, expected=%d got=%d",
+			2,
+			len(callExpression.Argments),
+		)
+	}
+	testLiteralExpression(t, callExpression.Argments[0], 3)
+	testLiteralExpression(t, callExpression.Argments[1], 14)
+}
+
+func TestCallExpressionParams(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedOutput []int
+	}{
+		{"call(3, 14);", []int{3, 14}},
+	}
+
+	for _, tt := range tests {
+		lexer := lexer.NewLexer(tt.input)
+		parser := NewParser(lexer)
+		program := parser.ParseProgram()
+		checkParserErrors(t, parser)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf(
+				"program.Body does not contain %d statements, got %d\n",
+				1, len(program.Statements),
+			)
+		}
+
+		statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf(
+				"program.Statements[0] is not ast.ExpressionStatement, got=%T",
+				program.Statements[0],
+			)
+		}
+
+		callExpression, ok := statement.Value.(*ast.CallExpression)
+		if !ok {
+			t.Fatalf(
+				"expression is not ast.CallExpression, got=%T",
+				statement.Value,
+			)
+		}
+		callExprArguments := callExpression.Argments
+
+		if len(callExprArguments) != len(tt.expectedOutput) {
+			t.Fatalf(
+				"wrong number of arguments, expectedd=%d, got=%d,",
+				len(tt.expectedOutput),
+				len(callExprArguments),
+			)
+		}
+
+		for index := range callExprArguments {
+			testLiteralExpression(t, callExprArguments[index], tt.expectedOutput[index])
 		}
 	}
 }

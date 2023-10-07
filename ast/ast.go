@@ -138,6 +138,15 @@ func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteral) expressionNode()      {}
 func (il *IntegerLiteral) ToString() string     { return il.Token.Literal }
 
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
+func (b *Boolean) expressionNode()      {}
+func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
+func (b *Boolean) ToString() string     { return b.Token.Literal }
+
 type PrefixExpression struct {
 	Token    token.Token // The prfix token e.g "-"
 	Operator string
@@ -230,11 +239,26 @@ func (fl *FuncLiteral) ToString() string {
 	return out.String()
 }
 
-type Boolean struct {
-	Token token.Token
-	Value bool
+type CallExpression struct {
+	Token    token.Token // "("
+	Function Expression  // either Identifier or Function declaration
+	Argments []Expression
 }
 
-func (b *Boolean) expressionNode()      {}
-func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
-func (b *Boolean) ToString() string     { return b.Token.Literal }
+func (ce *CallExpression) TokenLiteral() string { return ce.Token.Literal }
+func (ce *CallExpression) expressionNode()      {}
+func (ce *CallExpression) ToString() string {
+	var out bytes.Buffer
+
+	args := []string{}
+
+	for _, arg := range ce.Argments {
+		args = append(args, arg.ToString())
+	}
+	out.WriteString(ce.Function.ToString())
+	out.WriteString("(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
+
+	return out.String()
+}

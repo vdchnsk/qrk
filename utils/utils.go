@@ -1,5 +1,7 @@
 package utils
 
+import "strings"
+
 func Contains[T comparable](s []T, e T) bool {
 	for _, v := range s {
 		if v == e {
@@ -7,4 +9,8 @@ func Contains[T comparable](s []T, e T) bool {
 		}
 	}
 	return false
+}
+
+func RemoveWhitespaces(str string) string {
+	return strings.Join(strings.Fields(str), "")
 }
