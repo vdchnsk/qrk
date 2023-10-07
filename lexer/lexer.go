@@ -45,12 +45,13 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.currChar {
 	case '=':
-		if l.peekChar() == '=' {
-			currChar := l.currChar
+		currChar := l.currChar
+		isComparison := l.peekChar() == '='
+		if isComparison {
 			l.readChar()
 			tok = token.Token{Type: token.EQ, Literal: string(currChar) + string(currChar)}
 		} else {
-			tok = newToken(token.ASSIGN, l.currChar)
+			tok = newToken(token.ASSIGN, currChar)
 		}
 	case '+':
 		tok = newToken(token.PLUS, l.currChar)
@@ -66,11 +67,12 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.GT, l.currChar)
 	case '!':
 		currChar := l.currChar
-		if l.peekChar() == '=' {
+		isComparison := l.peekChar() == '='
+		if isComparison {
 			l.readChar()
 			tok = token.Token{Type: token.NOT_EQ, Literal: string(currChar) + string(l.currChar)}
 		} else {
-			tok = newToken(token.BANG, l.currChar)
+			tok = newToken(token.BANG, currChar)
 		}
 	case '(':
 		tok = newToken(token.LPAREN, l.currChar)
