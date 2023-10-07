@@ -740,3 +740,57 @@ func TestFuncLiteral(t *testing.T) {
 
 	testInfixExpression(t, functionBodyStatement.Value, "x", "+", "y")
 }
+
+func TestFuncParams(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedOutput []string
+	}{
+		{"fn() { }", []string{}},
+		{"fn(x) { x; }", []string{"x"}},
+		{"fn(x, y) { x + y; }", []string{"x", "y"}},
+	}
+
+	for _, tt := range tests {
+		lexer := lexer.NewLexer(tt.input)
+		parser := NewParser(lexer)
+		program := parser.ParseProgram()
+		checkParserErrors(t, parser)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf(
+				"program.Body does not contain %d statements, got %d\n",
+				1, len(program.Statements),
+			)
+		}
+
+		statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf(
+				"program.Statements[0] is not ast.ExpressionStatement, got=%T",
+				program.Statements[0],
+			)
+		}
+
+		function, ok := statement.Value.(*ast.FuncLiteral)
+		if !ok {
+			t.Fatalf(
+				"function is not ast.FuncLiteral, got=%T",
+				statement.Value,
+			)
+		}
+		funcParams := function.Parameters
+
+		if len(funcParams) != len(tt.expectedOutput) {
+			t.Fatalf(
+				"wrong number of parameters, expectedd=%d, got=%d,",
+				len(tt.expectedOutput),
+				len(funcParams),
+			)
+		}
+
+		for index := range funcParams {
+			testLiteralExpression(t, funcParams[index], tt.expectedOutput[index])
+		}
+	}
+}
