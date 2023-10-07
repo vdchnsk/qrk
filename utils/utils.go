@@ -1,6 +1,8 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+)
 
 func Contains[T comparable](s []T, e T) bool {
 	for _, v := range s {
@@ -12,5 +14,5 @@ func Contains[T comparable](s []T, e T) bool {
 }
 
 func RemoveWhitespaces(str string) string {
-	return strings.Join(strings.Fields(str), "")
+	return strings.ReplaceAll(str, " ", "")
 }
