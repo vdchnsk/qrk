@@ -3,6 +3,7 @@ package evaluator
 import (
 	"github.com/vdchnsk/i-go/ast"
 	"github.com/vdchnsk/i-go/object"
+	"github.com/vdchnsk/i-go/token"
 )
 
 var (
@@ -21,7 +22,11 @@ func Eval(node ast.Node) object.Object {
 		return &object.Integer{
 			Value: node.Value,
 		}
+	case *ast.PrefixExpression:
+		right := Eval(node.Right)
+		return evalPrefixExpression(node.Operator, right)
 	case *ast.Boolean:
+		return nativeBoolToBooleanObject(node.Value)
 	}
 	return nil
 }
@@ -42,4 +47,26 @@ func evalStatements(statements []ast.Statement) object.Object {
 		result = Eval(statement)
 	}
 	return result
+}
+
+func evalPrefixExpression(operator string, right object.Object) object.Object {
+	switch operator {
+	case token.BANG:
+		return evalBangOperatorExpression(right)
+	default:
+		return nil
+	}
+}
+
+func evalBangOperatorExpression(right object.Object) object.Object {
+	switch right {
+	case TRUE: // * !true == false
+		return FALSE
+	case FALSE: // * !false == true
+		return TRUE
+	case NULL: // * !null == true
+		return TRUE
+	default:
+		return FALSE
+	}
 }

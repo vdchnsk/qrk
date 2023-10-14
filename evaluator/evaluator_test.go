@@ -83,3 +83,22 @@ func testBoooleanObject(t *testing.T, obj object.Object, expectedValue bool) boo
 	}
 	return true
 }
+
+func TestBankOperator(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{"!true", false},
+		{"!false", true},
+		{"!!true", true},
+		{"!!false", false},
+		{"!42", false},
+		{"!!42", true},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testBoooleanObject(t, evaluated, tt.expected)
+	}
+}
