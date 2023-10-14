@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/vdchnsk/i-go/evaluator"
-	"github.com/vdchnsk/i-go/lexer"
-	"github.com/vdchnsk/i-go/parser"
+	"github.com/vdchnsk/i-go/src/evaluator"
+	"github.com/vdchnsk/i-go/src/lexer"
+	"github.com/vdchnsk/i-go/src/parser"
 )
 
 const PRMOPT = "> "

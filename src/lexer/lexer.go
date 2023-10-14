@@ -1,8 +1,8 @@
 package lexer
 
 import (
-	"github.com/vdchnsk/i-go/token"
-	"github.com/vdchnsk/i-go/utils"
+	"github.com/vdchnsk/i-go/src/token"
+	"github.com/vdchnsk/i-go/src/utils"
 )
 
 type Lexer struct {

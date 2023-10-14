@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/vdchnsk/i-go/token"
+	"github.com/vdchnsk/i-go/src/token"
 )
 
 type Node interface {

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/vdchnsk/i-go/ast"
-	"github.com/vdchnsk/i-go/lexer"
-	"github.com/vdchnsk/i-go/token"
+	"github.com/vdchnsk/i-go/src/ast"
+	"github.com/vdchnsk/i-go/src/lexer"
+	"github.com/vdchnsk/i-go/src/token"
 )
 
 const (

@@ -1,9 +1,9 @@
 package evaluator
 
 import (
-	"github.com/vdchnsk/i-go/ast"
-	"github.com/vdchnsk/i-go/object"
-	"github.com/vdchnsk/i-go/token"
+	"github.com/vdchnsk/i-go/src/ast"
+	"github.com/vdchnsk/i-go/src/object"
+	"github.com/vdchnsk/i-go/src/token"
 )
 
 var (
