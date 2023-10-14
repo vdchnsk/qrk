@@ -106,7 +106,6 @@ func evalInfixIntExpression(operator string, left, right object.Object) object.O
 }
 
 func evalBangOperatorExpression(right object.Object) object.Object {
-	// TODO: make <= 0 elements falsy
 	switch right {
 	case TRUE: // * !true == false
 		return FALSE
