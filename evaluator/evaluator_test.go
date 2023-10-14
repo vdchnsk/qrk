@@ -102,3 +102,18 @@ func TestBankOperator(t *testing.T) {
 		testBoooleanObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestMinusperator(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"-5", -5},
+		{"-42", -42},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
