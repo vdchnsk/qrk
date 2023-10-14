@@ -86,6 +86,14 @@ func evalInfixIntExpression(operator string, left, right object.Object) object.O
 		return &object.Integer{Value: leftVal / rightVal}
 	case token.ASTERISK:
 		return &object.Integer{Value: leftVal * rightVal}
+	case token.LT:
+		return nativeBoolToBooleanObject(leftVal < rightVal)
+	case token.GT:
+		return nativeBoolToBooleanObject(leftVal > rightVal)
+	case token.EQ:
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case token.NOT_EQ:
+		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
 		return NULL
 	}
