@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/vdchnsk/i-go/repl"
+	"github.com/vdchnsk/i-go/cmd/repl"
 )
 
 func main() {
