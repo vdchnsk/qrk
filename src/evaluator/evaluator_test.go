@@ -50,6 +50,18 @@ func testIntegerObject(t *testing.T, obj object.Object, expectedValue int64) boo
 	return true
 }
 
+func testNullObject(t *testing.T, obj object.Object) bool {
+	_, ok := obj.(*object.Null)
+	if !ok {
+		t.Errorf(
+			"object is not null. got=%d",
+			obj,
+		)
+		return false
+	}
+	return true
+}
+
 func TestEvalBooelanExpression(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -141,5 +153,26 @@ func TestEvalInfixExpression(t *testing.T) {
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestEvalIfExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"if (true) { 10 }", 10},
+		{"if (false) { 10 } else { 42 }", 42},
+		{"if (false) { 10 }", nil},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		integer, ok := tt.expected.(int)
+		if ok {
+			testIntegerObject(t, evaluated, int64(integer))
+		} else {
+			testNullObject(t, evaluated)
+		}
 	}
 }

@@ -16,12 +16,16 @@ func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalStatements(node.Statements)
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Value)
 	case *ast.IntegerLiteral:
 		return &object.Integer{
 			Value: node.Value,
 		}
+	case *ast.Boolean:
+		return nativeBoolToBooleanObject(node.Value)
 	case *ast.PrefixExpression:
 		right := Eval(node.Right)
 		return evalPrefixExpression(node.Operator, right)
@@ -29,8 +33,8 @@ func Eval(node ast.Node) object.Object {
 		left := Eval(node.Left)
 		right := Eval(node.Right)
 		return evalInfixExpression(node.Operator, left, right)
-	case *ast.Boolean:
-		return nativeBoolToBooleanObject(node.Value)
+	case *ast.IfExpression:
+		return evalIfExpression(node.Condition, node.Consequence, node.Alternative)
 	}
 	return nil
 }
@@ -125,4 +129,26 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 
 	value := right.(*object.Integer).Value
 	return &object.Integer{Value: -value}
+}
+
+func evalIfExpression(condition ast.Expression, consequence, alternative *ast.BlockStatement) object.Object {
+	conditionResult := Eval(condition)
+
+	if isTruthy(conditionResult) {
+		return Eval(consequence)
+	}
+	if alternative != nil {
+		return Eval(alternative)
+	}
+	return NULL
+}
+
+func isTruthy(obj object.Object) bool {
+	if obj == TRUE {
+		return true
+	}
+	if obj == NULL || obj == FALSE {
+		return false
+	}
+	return true
 }
