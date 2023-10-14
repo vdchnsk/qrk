@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/vdchnsk/i-go/evaluator"
 	"github.com/vdchnsk/i-go/lexer"
 	"github.com/vdchnsk/i-go/parser"
 )
@@ -39,8 +40,12 @@ func Start(in io.Reader, out io.Writer) {
 			printParserErrors(out, parser.Errors())
 			continue
 		}
-		io.WriteString(out, program.ToString())
-		io.WriteString(out, "\n")
+
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+			io.WriteString(out, evaluated.Inspect())
+			io.WriteString(out, "\n")
+		}
 	}
 }
 
