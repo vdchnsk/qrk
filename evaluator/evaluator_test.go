@@ -117,3 +117,21 @@ func TestMinusperator(t *testing.T) {
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestEvalInfixExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"-5-5", -10},
+		{"1000 + 100", 1100},
+		{"5 * 5", 25},
+		{"25 / 5", 5},
+		{"(25 + 5) / 6", 5},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
