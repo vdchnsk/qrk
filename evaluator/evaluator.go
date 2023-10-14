@@ -70,7 +70,13 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	if bothOperandsInts {
 		return evalInfixIntExpression(operator, left, right)
 	}
-	return nil
+	switch operator {
+	case token.EQ:
+		return nativeBoolToBooleanObject(left == right)
+	case token.NOT_EQ:
+		return nativeBoolToBooleanObject(left != right)
+	}
+	return NULL
 }
 
 func evalInfixIntExpression(operator string, left, right object.Object) object.Object {
