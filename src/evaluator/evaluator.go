@@ -15,9 +15,9 @@ var (
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		return evalProgram(node.Statements)
 	case *ast.BlockStatement:
-		return evalStatements(node.Statements)
+		return evalBlockStatements(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Value)
 	case *ast.IntegerLiteral:
@@ -35,6 +35,9 @@ func Eval(node ast.Node) object.Object {
 		return evalInfixExpression(node.Operator, left, right)
 	case *ast.IfExpression:
 		return evalIfExpression(node.Condition, node.Consequence, node.Alternative)
+	case *ast.ReturnStatement:
+		returningVal := Eval(node.Value)
+		return &object.ReturnWrapper{Value: returningVal}
 	}
 	return nil
 }
@@ -48,11 +51,32 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 
 }
 
-func evalStatements(statements []ast.Statement) object.Object {
+func evalProgram(statements []ast.Statement) object.Object {
 	var result object.Object
 
 	for _, statement := range statements {
 		result = Eval(statement)
+
+		returnWrapper, shouldStopEval := result.(*object.ReturnWrapper)
+
+		if shouldStopEval {
+			return returnWrapper.Value
+		}
+	}
+	return result
+}
+
+func evalBlockStatements(statements []ast.Statement) object.Object {
+	var result object.Object
+
+	for _, statement := range statements {
+		result = Eval(statement)
+
+		returnWrapper, shouldStopEval := result.(*object.ReturnWrapper)
+
+		if result != nil && shouldStopEval {
+			return returnWrapper
+		}
 	}
 	return result
 }

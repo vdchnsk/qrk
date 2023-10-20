@@ -176,3 +176,57 @@ func TestEvalIfExpression(t *testing.T) {
 		}
 	}
 }
+
+func TestEvalReturnStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"return 10;", 10},
+		{"42 * 5; return 10; 13;", 10},
+		{"42 * 5; return 10; return 42;", 10},
+		{`
+		if (true) {
+			return 10;
+		}
+		`, 10},
+		{`
+		if (true) {
+			return true;
+		}
+		`, true},
+		{`
+		if (true) {
+			if (true) {
+				return 10;
+			}
+		}
+		`, 10},
+		{`
+		if (false) {
+			return 5;
+		} else {
+			if (true) {
+				if (true) {
+					return 42;
+				}
+				if (true) {
+					return 10;
+				}
+			}
+		}
+		`, 42},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		integer, isInt := tt.expected.(int)
+		if isInt {
+			testIntegerObject(t, evaluated, int64(integer))
+		}
+		boolean, isBool := tt.expected.(bool)
+		if isBool {
+			testBoooleanObject(t, evaluated, boolean)
+		}
+	}
+}
