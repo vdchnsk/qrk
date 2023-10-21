@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/vdchnsk/i-go/src/lexer"
+	"github.com/vdchnsk/i-go/src/memory"
 	"github.com/vdchnsk/i-go/src/object"
 	"github.com/vdchnsk/i-go/src/parser"
 )
@@ -12,8 +13,9 @@ func testEval(input string) object.Object {
 	lexer := lexer.NewLexer(input)
 	p := parser.NewParser(lexer)
 	program := p.ParseProgram()
+	env := memory.NewEnvironment()
 
-	return Eval(program)
+	return Eval(program, env)
 }
 
 func TestEvalIntegerExpression(t *testing.T) {
@@ -261,6 +263,46 @@ func TestErrorEval(t *testing.T) {
 				"wrong error message, got=%s, expected=%s",
 				err.Message,
 				tt.expected,
+			)
+		}
+	}
+}
+
+func TestLetStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"let a = 4; a", 4},
+	}
+
+	for _, tt := range tests {
+		testIntegerObject(t, testEval(tt.input), tt.expected)
+	}
+}
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input           string
+		expectedMessage string
+	}{
+		{"foobar", "identifier not found: foobar"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		err, ok := evaluated.(*object.Error)
+		if !ok {
+			t.Errorf(
+				"no error is returned, got=%T(%+v)",
+				evaluated, evaluated,
+			)
+		}
+		if err.Message != tt.expectedMessage {
+			t.Errorf(
+				"wrong error message, got=%s, expected=%s",
+				err.Message,
+				tt.expectedMessage,
 			)
 		}
 	}

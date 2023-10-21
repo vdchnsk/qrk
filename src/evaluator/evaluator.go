@@ -5,6 +5,7 @@ import (
 
 	"github.com/vdchnsk/i-go/src/ast"
 	"github.com/vdchnsk/i-go/src/error"
+	"github.com/vdchnsk/i-go/src/memory"
 	"github.com/vdchnsk/i-go/src/object"
 	"github.com/vdchnsk/i-go/src/token"
 )
@@ -15,7 +16,7 @@ var (
 	FALSE = &object.Boolean{Value: false}
 )
 
-func Eval(node ast.Node) object.Object {
+func Eval(node ast.Node, env *memory.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node.Statements)
@@ -24,7 +25,7 @@ func Eval(node ast.Node) object.Object {
 		return evalBlockStatements(node.Statements)
 
 	case *ast.ExpressionStatement:
-		return Eval(node.Value)
+		return Eval(node.Value, env)
 
 	case *ast.IntegerLiteral:
 		return &object.Integer{
@@ -35,28 +36,38 @@ func Eval(node ast.Node) object.Object {
 		return nativeBoolToBooleanObject(node.Value)
 
 	case *ast.PrefixExpression:
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 		if isError(right) {
 			return right
 		}
 		return evalPrefixExpression(node.Operator, right)
 
 	case *ast.InfixExpression:
-		left := Eval(node.Left)
+		left := Eval(node.Left, env)
 		if isError(left) {
 			return left
 		}
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 		if isError(right) {
 			return right
 		}
 		return evalInfixExpression(node.Operator, left, right)
 
+	case *ast.LetStatement:
+		val := Eval(node.Value, env)
+		if isError(val) {
+			return val
+		}
+		env.Put(node.Identifier.Value, val)
+
+	case *ast.Identifier:
+		return evalIdentifier(node.Value, env)
+
 	case *ast.IfExpression:
 		return evalIfExpression(node.Condition, node.Consequence, node.Alternative)
 
 	case *ast.ReturnStatement:
-		returningVal := Eval(node.Value)
+		returningVal := Eval(node.Value, nil)
 		if isError(returningVal) {
 			return returningVal
 		}
@@ -80,9 +91,10 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 
 func evalProgram(statements []ast.Statement) object.Object {
 	var result object.Object
+	env := memory.NewEnvironment()
 
 	for _, statement := range statements {
-		result = Eval(statement)
+		result = Eval(statement, env)
 
 		switch result := result.(type) {
 		case *object.ReturnWrapper:
@@ -96,9 +108,10 @@ func evalProgram(statements []ast.Statement) object.Object {
 
 func evalBlockStatements(statements []ast.Statement) object.Object {
 	var result object.Object
+	env := memory.NewEnvironment()
 
 	for _, statement := range statements {
-		result = Eval(statement)
+		result = Eval(statement, env)
 
 		_, isReturnWrapper := result.(*object.ReturnWrapper)
 		_, isError := result.(*object.Error)
@@ -208,18 +221,30 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 }
 
 func evalIfExpression(condition ast.Expression, consequence, alternative *ast.BlockStatement) object.Object {
-	conditionResult := Eval(condition)
+	env := memory.NewEnvironment()
+	conditionResult := Eval(condition, env)
 
 	if isError(conditionResult) {
 		return conditionResult
 	}
 	if isTruthy(conditionResult) {
-		return Eval(consequence)
+		return Eval(consequence, env)
 	}
 	if alternative != nil {
-		return Eval(alternative)
+		return Eval(alternative, env)
 	}
 	return NULL
+}
+
+func evalIdentifier(identifier string, env *memory.Environment) object.Object {
+	val, ok := env.Get(identifier)
+	if !ok {
+		return newError(
+			"%s: %s",
+			error.IDENTIFIER_NOT_FOUND, identifier,
+		)
+	}
+	return val
 }
 
 func isTruthy(obj object.Object) bool {
