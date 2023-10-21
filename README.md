@@ -5,7 +5,11 @@ Parser implements [**Pratt parsing algorithm**](https://journal.stuffwithstuff.c
 ### Code snippets
 
 ```i
-// todo
+let isAnswerOnTheLifeQuestion = fn(answer) { 
+    let expectedAnswer = 42;
+    return answer == expectedAnswer;
+};
+isAnswerOnTheLifeQuestion(69);
 ```
 
 ### 🚀 How to run locally
