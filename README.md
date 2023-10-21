@@ -4,7 +4,7 @@ Parser implements [**Pratt parsing algorithm**](https://journal.stuffwithstuff.c
 
 ### Code snippets
 
-```i
+```haskell
 let isAnswerOnTheLifeQuestion = fn(answer) { 
     let expectedAnswer = 42;
     return answer == expectedAnswer;
