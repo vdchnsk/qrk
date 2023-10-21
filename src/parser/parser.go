@@ -352,7 +352,7 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	if !p.expectPeek(token.LBRACE) {
 		return nil
 	}
-	funcLit.Body = *p.parseBlockStatement()
+	funcLit.Body = p.parseBlockStatement()
 
 	return funcLit
 }

@@ -215,7 +215,7 @@ func (ife *IfExpression) ToString() string {
 type FuncLiteral struct {
 	Token      token.Token // The token "fn"
 	Parameters []*Identifier
-	Body       BlockStatement
+	Body       *BlockStatement
 }
 
 func (fl *FuncLiteral) TokenLiteral() string { return fl.Token.Literal }

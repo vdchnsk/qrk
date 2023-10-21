@@ -310,3 +310,38 @@ func TestErrorHandling(t *testing.T) {
 		}
 	}
 }
+
+func TestFunctionObject(t *testing.T) {
+	input := "fn(a, b) { a + b; };"
+	expectedBody := "(a + b)"
+
+	evaluated := testEval(input)
+	fn, ok := evaluated.(*object.Function)
+	if !ok {
+		t.Errorf(
+			"object is not a function, got=%T(%+v)",
+			evaluated, evaluated,
+		)
+	}
+
+	params := fn.Parameters
+
+	if len(params) != 2 {
+		t.Errorf(
+			"wrong amount of parameters, got=%T(%+v)",
+			evaluated, evaluated,
+		)
+	}
+	if params[0].ToString() != "a" || params[1].ToString() != "b" {
+		t.Errorf(
+			"wrong parameters, got=%T, expected=%s",
+			params, "(a, b)",
+		)
+	}
+	if fn.Body.ToString() != expectedBody {
+		t.Errorf(
+			"wrong body, got=%s, expected=%s",
+			fn.Body.ToString(), expectedBody,
+		)
+	}
+}

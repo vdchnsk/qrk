@@ -71,6 +71,15 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return returningVal
 		}
 		return &object.ReturnWrapper{Value: returningVal}
+	case *ast.FuncLiteral:
+		params := node.Parameters
+		body := node.Body
+
+		return &object.Function{
+			Parameters: params,
+			Body:       body,
+			Env:        env,
+		}
 	}
 	return nil
 }
