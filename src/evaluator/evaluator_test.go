@@ -239,6 +239,12 @@ func TestErrorEval(t *testing.T) {
 		{"1 + true;", "type mismatch: INTEGER + BOOLEAN"},
 		{"-true;", "unknown operator: -BOOLEAN"},
 		{"true + true;", "unknown operator: BOOLEAN + BOOLEAN"},
+		{`
+		if (true) {
+			true + true;
+		}
+		return 10;
+		`, "unknown operator: BOOLEAN + BOOLEAN"},
 	}
 
 	for _, tt := range tests {

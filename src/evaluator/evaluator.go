@@ -64,10 +64,11 @@ func evalProgram(statements []ast.Statement) object.Object {
 	for _, statement := range statements {
 		result = Eval(statement)
 
-		returnWrapper, shouldStopEval := result.(*object.ReturnWrapper)
-
-		if shouldStopEval {
-			return returnWrapper.Value
+		switch result := result.(type) {
+		case *object.ReturnWrapper:
+			return result.Value
+		case *object.Error:
+			return result
 		}
 	}
 	return result
@@ -79,10 +80,11 @@ func evalBlockStatements(statements []ast.Statement) object.Object {
 	for _, statement := range statements {
 		result = Eval(statement)
 
-		returnWrapper, shouldStopEval := result.(*object.ReturnWrapper)
+		_, isReturnWrapper := result.(*object.ReturnWrapper)
+		_, isError := result.(*object.Error)
 
-		if result != nil && shouldStopEval {
-			return returnWrapper
+		if result != nil && (isReturnWrapper || isError) {
+			return result
 		}
 	}
 	return result
