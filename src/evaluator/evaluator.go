@@ -19,10 +19,10 @@ var (
 func Eval(node ast.Node, env *memory.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalProgram(node.Statements)
+		return evalProgram(node.Statements, env)
 
 	case *ast.BlockStatement:
-		return evalBlockStatements(node.Statements)
+		return evalBlockStatements(node.Statements, env)
 
 	case *ast.ExpressionStatement:
 		return Eval(node.Value, env)
@@ -64,10 +64,10 @@ func Eval(node ast.Node, env *memory.Environment) object.Object {
 		return evalIdentifier(node.Value, env)
 
 	case *ast.IfExpression:
-		return evalIfExpression(node.Condition, node.Consequence, node.Alternative)
+		return evalIfExpression(node.Condition, node.Consequence, node.Alternative, env)
 
 	case *ast.ReturnStatement:
-		returningVal := Eval(node.Value, nil)
+		returningVal := Eval(node.Value, env)
 		if isError(returningVal) {
 			return returningVal
 		}
@@ -89,9 +89,8 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 
 }
 
-func evalProgram(statements []ast.Statement) object.Object {
+func evalProgram(statements []ast.Statement, env *memory.Environment) object.Object {
 	var result object.Object
-	env := memory.NewEnvironment()
 
 	for _, statement := range statements {
 		result = Eval(statement, env)
@@ -106,9 +105,8 @@ func evalProgram(statements []ast.Statement) object.Object {
 	return result
 }
 
-func evalBlockStatements(statements []ast.Statement) object.Object {
+func evalBlockStatements(statements []ast.Statement, env *memory.Environment) object.Object {
 	var result object.Object
-	env := memory.NewEnvironment()
 
 	for _, statement := range statements {
 		result = Eval(statement, env)
@@ -220,8 +218,7 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 	return &object.Integer{Value: -value}
 }
 
-func evalIfExpression(condition ast.Expression, consequence, alternative *ast.BlockStatement) object.Object {
-	env := memory.NewEnvironment()
+func evalIfExpression(condition ast.Expression, consequence, alternative *ast.BlockStatement, env *memory.Environment) object.Object {
 	conditionResult := Eval(condition, env)
 
 	if isError(conditionResult) {

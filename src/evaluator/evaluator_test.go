@@ -274,6 +274,10 @@ func TestLetStatement(t *testing.T) {
 		expected int64
 	}{
 		{"let a = 4; a", 4},
+		{`
+		let a = 4;
+		a;
+		`, 4},
 	}
 
 	for _, tt := range tests {
