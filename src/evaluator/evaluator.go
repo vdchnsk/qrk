@@ -5,7 +5,6 @@ import (
 
 	"github.com/vdchnsk/i-go/src/ast"
 	"github.com/vdchnsk/i-go/src/error"
-	"github.com/vdchnsk/i-go/src/memory"
 	"github.com/vdchnsk/i-go/src/object"
 	"github.com/vdchnsk/i-go/src/token"
 )
@@ -16,7 +15,7 @@ var (
 	FALSE = &object.Boolean{Value: false}
 )
 
-func Eval(node ast.Node, env *memory.Environment) object.Object {
+func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node.Statements, env)
@@ -89,7 +88,7 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 
 }
 
-func evalProgram(statements []ast.Statement, env *memory.Environment) object.Object {
+func evalProgram(statements []ast.Statement, env *object.Environment) object.Object {
 	var result object.Object
 
 	for _, statement := range statements {
@@ -105,7 +104,7 @@ func evalProgram(statements []ast.Statement, env *memory.Environment) object.Obj
 	return result
 }
 
-func evalBlockStatements(statements []ast.Statement, env *memory.Environment) object.Object {
+func evalBlockStatements(statements []ast.Statement, env *object.Environment) object.Object {
 	var result object.Object
 
 	for _, statement := range statements {
@@ -218,7 +217,7 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 	return &object.Integer{Value: -value}
 }
 
-func evalIfExpression(condition ast.Expression, consequence, alternative *ast.BlockStatement, env *memory.Environment) object.Object {
+func evalIfExpression(condition ast.Expression, consequence, alternative *ast.BlockStatement, env *object.Environment) object.Object {
 	conditionResult := Eval(condition, env)
 
 	if isError(conditionResult) {
@@ -233,7 +232,7 @@ func evalIfExpression(condition ast.Expression, consequence, alternative *ast.Bl
 	return NULL
 }
 
-func evalIdentifier(identifier string, env *memory.Environment) object.Object {
+func evalIdentifier(identifier string, env *object.Environment) object.Object {
 	val, ok := env.Get(identifier)
 	if !ok {
 		return newError(

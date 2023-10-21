@@ -1,7 +1,11 @@
 package object
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
+
+	"github.com/vdchnsk/i-go/src/ast"
 )
 
 type ObjectType string
@@ -12,6 +16,7 @@ const (
 	NULL_OBJ    = "NULL"
 	RETURN_OBJ  = "RETURN_OBJECT"
 	ERROR_OBJ   = "ERROR"
+	FUNC_OBJ    = "FUNCTION"
 )
 
 type Object interface {
@@ -21,6 +26,25 @@ type Object interface {
 
 type Error struct {
 	Message string
+}
+
+type Environment struct {
+	store map[string]Object
+}
+
+func NewEnvironment() *Environment {
+	s := make(map[string]Object)
+	return &Environment{store: s}
+}
+
+func (env *Environment) Get(ident string) (Object, bool) {
+	val, ok := env.store[ident]
+	return val, ok
+}
+
+func (env *Environment) Put(ident string, val Object) Object {
+	env.store[ident] = val
+	return val
 }
 
 func (err *Error) Type() ObjectType { return RETURN_OBJ }
@@ -51,3 +75,28 @@ type ReturnWrapper struct {
 
 func (rw *ReturnWrapper) Type() ObjectType { return RETURN_OBJ }
 func (rw *ReturnWrapper) Inspect() string  { return fmt.Sprintf("%d", rw.Value) }
+
+type Function struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
+}
+
+func (fn *Function) Type() ObjectType { return FUNC_OBJ }
+func (fn *Function) Inspect() string {
+	var out bytes.Buffer
+
+	params := []string{}
+	for _, p := range fn.Parameters {
+		params = append(params, p.ToString())
+	}
+
+	out.WriteString("fn")
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") {\n")
+	out.WriteString(fn.Body.ToString())
+	out.WriteString("}\n")
+
+	return out.String()
+}

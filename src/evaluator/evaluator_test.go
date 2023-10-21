@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/vdchnsk/i-go/src/lexer"
-	"github.com/vdchnsk/i-go/src/memory"
 	"github.com/vdchnsk/i-go/src/object"
 	"github.com/vdchnsk/i-go/src/parser"
 )
@@ -13,7 +12,7 @@ func testEval(input string) object.Object {
 	lexer := lexer.NewLexer(input)
 	p := parser.NewParser(lexer)
 	program := p.ParseProgram()
-	env := memory.NewEnvironment()
+	env := object.NewEnvironment()
 
 	return Eval(program, env)
 }

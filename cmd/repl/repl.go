@@ -7,7 +7,7 @@ import (
 
 	"github.com/vdchnsk/i-go/src/evaluator"
 	"github.com/vdchnsk/i-go/src/lexer"
-	"github.com/vdchnsk/i-go/src/memory"
+	"github.com/vdchnsk/i-go/src/object"
 	"github.com/vdchnsk/i-go/src/parser"
 )
 
@@ -23,7 +23,7 @@ const REPL_WELCOME_MESSAGE = `
 func Start(in io.Reader, out io.Writer) {
 	fmt.Print(REPL_WELCOME_MESSAGE)
 	scanner := bufio.NewScanner(in)
-	env := memory.NewEnvironment()
+	env := object.NewEnvironment()
 
 	for {
 		fmt.Print(PRMOPT)
