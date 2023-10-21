@@ -71,6 +71,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return returningVal
 		}
 		return &object.ReturnWrapper{Value: returningVal}
+
 	case *ast.FuncLiteral:
 		params := node.Parameters
 		body := node.Body
@@ -80,6 +81,18 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			Body:       body,
 			Env:        env,
 		}
+
+	case *ast.CallExpression:
+		fn := Eval(node.Function, env)
+		if isError(fn) {
+			return fn
+		}
+		args := evalExpressions(node.Argments, env)
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
+		return applyFunction(fn, args)
+
 	}
 	return nil
 }
@@ -125,6 +138,19 @@ func evalBlockStatements(statements []ast.Statement, env *object.Environment) ob
 		if result != nil && (isReturnWrapper || isError) {
 			return result
 		}
+	}
+	return result
+}
+
+func evalExpressions(expressions []ast.Expression, env *object.Environment) []object.Object {
+	var result []object.Object
+
+	for _, e := range expressions {
+		evalueated := Eval(e, env)
+		if isError(evalueated) {
+			return []object.Object{evalueated}
+		}
+		result = append(result, evalueated)
 	}
 	return result
 }
@@ -250,6 +276,37 @@ func evalIdentifier(identifier string, env *object.Environment) object.Object {
 		)
 	}
 	return val
+}
+
+func applyFunction(fn object.Object, args []object.Object) object.Object {
+	function, ok := fn.(*object.Function)
+	if !ok {
+		return newError(
+			"not a function %s",
+			fn.Type(),
+		)
+	}
+	extendedEnv := extendFuncEnv(function, args)
+	evaluatedBody := Eval(function.Body, extendedEnv)
+
+	return unwrapReturnWrapper(evaluatedBody)
+}
+
+func extendFuncEnv(fn *object.Function, args []object.Object) *object.Environment {
+	env := object.NewEnclosedEnv(fn.Env)
+
+	for paramId, paramData := range fn.Parameters {
+		env.Put(paramData.Value, args[paramId])
+	}
+
+	return env
+}
+
+func unwrapReturnWrapper(obj object.Object) object.Object {
+	if returnWrapper, ok := obj.(*object.ReturnWrapper); ok {
+		return returnWrapper.Value
+	}
+	return obj
 }
 
 func isTruthy(obj object.Object) bool {

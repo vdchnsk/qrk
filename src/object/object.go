@@ -30,15 +30,26 @@ type Error struct {
 
 type Environment struct {
 	store map[string]Object
+	outer *Environment
 }
 
 func NewEnvironment() *Environment {
 	s := make(map[string]Object)
-	return &Environment{store: s}
+	return &Environment{store: s, outer: nil}
+}
+
+func NewEnclosedEnv(outer *Environment) *Environment {
+	env := NewEnvironment()
+	env.outer = outer
+
+	return env
 }
 
 func (env *Environment) Get(ident string) (Object, bool) {
 	val, ok := env.store[ident]
+	if !ok && env.outer != nil {
+		return env.outer.Get(ident)
+	}
 	return val, ok
 }
 
