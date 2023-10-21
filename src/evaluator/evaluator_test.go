@@ -230,3 +230,32 @@ func TestEvalReturnStatement(t *testing.T) {
 		}
 	}
 }
+
+func TestErrorEval(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"1 + true;", "type mismatch: INTEGER + BOOLEAN"},
+		{"-true;", "unknown operator: -BOOLEAN"},
+		{"true + true;", "unknown operator: BOOLEAN + BOOLEAN"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		err, ok := evaluated.(*object.Error)
+		if !ok {
+			t.Errorf(
+				"no error is returned, got=%T(%+v)",
+				evaluated, evaluated,
+			)
+		}
+		if err.Message != tt.expected {
+			t.Errorf(
+				"wrong error message, got=%s, expected=%s",
+				err.Message,
+				tt.expected,
+			)
+		}
+	}
+}
