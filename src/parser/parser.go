@@ -120,7 +120,12 @@ func (p *Parser) noPrefixParseFnError(t token.TokenType) {
 
 func (p *Parser) NextToken() {
 	p.currToken = p.peekToken
-	p.peekToken = p.lexer.NextToken()
+	nextToken, err := p.lexer.NextToken()
+	if err != nil {
+		p.errors = append(p.errors, err.Error())
+		return
+	}
+	p.peekToken = nextToken
 }
 
 func (p *Parser) ParseProgram() *ast.Program {

@@ -25,8 +25,10 @@ func TestNextToken(t *testing.T) {
 			return false;
 		}
 
-		10 == 10
-		10 != 9
+		10 == 10;
+		10 != 9;
+		"foo";
+		"foo bar";
 	`
 
 	tests := []struct {
@@ -101,16 +103,22 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "10"},
 		{token.EQ, "=="},
 		{token.INT, "10"},
+		{token.SEMICOLON, ";"},
 		{token.INT, "10"},
 		{token.NOT_EQ, "!="},
 		{token.INT, "9"},
+		{token.SEMICOLON, ";"},
+		{token.STRING, "foo"},
+		{token.SEMICOLON, ";"},
+		{token.STRING, "foo bar"},
+		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
 
 	l := NewLexer(input)
 
 	for i, tt := range tests {
-		tok := l.NextToken()
+		tok, _ := l.NextToken()
 
 		if tok.Type != tt.expectedType {
 			t.Fatalf(

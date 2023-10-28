@@ -1,6 +1,8 @@
 package lexer
 
 import (
+	"errors"
+
 	"github.com/vdchnsk/i-go/src/token"
 	"github.com/vdchnsk/i-go/src/utils"
 )
@@ -38,7 +40,7 @@ func (l *Lexer) peekChar() byte {
 	}
 }
 
-func (l *Lexer) NextToken() token.Token {
+func (l *Lexer) NextToken() (token.Token, error) {
 	var tok token.Token
 
 	l.skipWhitespace()
@@ -89,17 +91,24 @@ func (l *Lexer) NextToken() token.Token {
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
+	case '"':
+		strValue, err := l.readString()
+		if err != nil {
+			return token.Token{}, err
+		}
+		tok.Type = token.STRING
+		tok.Literal = strValue
 	default:
 		if isLetter(l.currChar) {
 			identifier := l.readIdentifier()
 
 			tok.Type = token.LookupIdentifier(identifier)
 			tok.Literal = identifier
-			return tok
+			return tok, nil
 		} else if isDigit(l.currChar) {
 			tok.Type = token.INT
 			tok.Literal = l.readNumber()
-			return tok
+			return tok, nil
 		} else {
 			tok = newToken(token.ILLEGAL, l.currChar)
 		}
@@ -107,7 +116,7 @@ func (l *Lexer) NextToken() token.Token {
 
 	l.readChar()
 
-	return tok
+	return tok, nil
 }
 
 func newToken(tokenType token.TokenType, char byte) token.Token {
@@ -132,6 +141,26 @@ func (l *Lexer) readNumber() string {
 	return l.input[initialPosition:l.position]
 }
 
+func (l *Lexer) readString() (string, error) {
+	initialPosition := l.position // "
+
+	for {
+		l.readChar()
+		if l.currChar == 0 {
+			return "", errors.New("no closing stirng symbol was found")
+		}
+
+		if l.currChar == '"' {
+			break
+		}
+	}
+
+	startValuePosition := initialPosition + 1
+	endValuePosition := l.position
+
+	return l.input[startValuePosition:endValuePosition], nil
+}
+
 func (l *Lexer) readIdentifier() string {
 	initialPosition := l.position
 
@@ -139,7 +168,8 @@ func (l *Lexer) readIdentifier() string {
 		l.readChar()
 	}
 
-	return l.input[initialPosition:l.position]
+	identEndPosition := l.position
+	return l.input[initialPosition:identEndPosition]
 }
 
 func isDigit(ch byte) bool {
