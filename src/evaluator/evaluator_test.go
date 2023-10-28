@@ -51,6 +51,25 @@ func testIntegerObject(t *testing.T, obj object.Object, expectedValue int64) boo
 	return true
 }
 
+func testStringObject(t *testing.T, obj object.Object, expectedValue string) bool {
+	result, ok := obj.(*object.String)
+	if !ok {
+		t.Errorf(
+			"object is not String. got=%T (%+v)",
+			obj, obj,
+		)
+		return false
+	}
+	if result.Value != expectedValue {
+		t.Errorf(
+			"integer != expected value. got=%s, expected=%s",
+			result, expectedValue,
+		)
+		return false
+	}
+	return true
+}
+
 func testNullObject(t *testing.T, obj object.Object) bool {
 	_, ok := obj.(*object.Null)
 	if !ok {
@@ -361,5 +380,18 @@ func TestFunctionEval(t *testing.T) {
 
 	for _, tt := range tests {
 		testIntegerObject(t, testEval(tt.input), tt.expectedOutput)
+	}
+}
+
+func TestStringLiteral(t *testing.T) {
+	input := `"Hello world!"`
+
+	evaluated := testEval(input)
+	expectedRes := "Hello world!"
+	if !testStringObject(t, evaluated, expectedRes) {
+		t.Errorf(
+			"String is evaluated incorrectly, expected=%s",
+			expectedRes,
+		)
 	}
 }
