@@ -181,7 +181,7 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	if lType != rType {
 		return newError(
 			"%s: %s %s %s",
-			error.TYPE_MISMATCH, lType, operator, right,
+			error.TYPE_MISMATCH, left.Type(), operator, right.Type(),
 		)
 	}
 
