@@ -181,13 +181,18 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	if lType != rType {
 		return newError(
 			"%s: %s %s %s",
-			error.TYPE_MISMATCH, left.Type(), operator, right.Type(),
+			error.TYPE_MISMATCH, lType, operator, right,
 		)
 	}
 
 	bothOperandsInts := lType == object.INTEGER_OBJ && rType == object.INTEGER_OBJ
 	if bothOperandsInts {
 		return evalInfixIntExpression(operator, left, right)
+	}
+
+	bothOperandsStrings := lType == object.STRING_OBJ && rType == object.STRING_OBJ
+	if bothOperandsStrings {
+		return evalInfixStringExpression(operator, left, right)
 	}
 
 	switch operator {
@@ -224,6 +229,21 @@ func evalInfixIntExpression(operator string, left, right object.Object) object.O
 		return nativeBoolToBooleanObject(leftVal == rightVal)
 	case token.NOT_EQ:
 		return nativeBoolToBooleanObject(leftVal != rightVal)
+	default:
+		return newError(
+			"%s: %s %s %s",
+			error.UNKNOWN_OPERATOR, left.Type(), operator, right.Type(),
+		)
+	}
+}
+
+func evalInfixStringExpression(operator string, left, right object.Object) object.Object {
+	leftVal := left.(*object.String).Value
+	rightVal := right.(*object.String).Value
+
+	switch operator {
+	case token.PLUS:
+		return &object.String{Value: leftVal + rightVal}
 	default:
 		return newError(
 			"%s: %s %s %s",

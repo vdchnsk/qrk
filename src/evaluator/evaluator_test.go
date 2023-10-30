@@ -309,6 +309,7 @@ func TestErrorHandling(t *testing.T) {
 		expectedMessage string
 	}{
 		{"foobar", "identifier not found: foobar"},
+		{`"str"-"str"`, "unknown operator: STRING - STRING"},
 	}
 
 	for _, tt := range tests {
@@ -385,6 +386,19 @@ func TestFunctionEval(t *testing.T) {
 
 func TestStringLiteral(t *testing.T) {
 	input := `"Hello world!"`
+
+	evaluated := testEval(input)
+	expectedRes := "Hello world!"
+	if !testStringObject(t, evaluated, expectedRes) {
+		t.Errorf(
+			"String is evaluated incorrectly, expected=%s",
+			expectedRes,
+		)
+	}
+}
+
+func TestStringConcatenation(t *testing.T) {
+	input := `"Hello " + "world!"`
 
 	evaluated := testEval(input)
 	expectedRes := "Hello world!"
