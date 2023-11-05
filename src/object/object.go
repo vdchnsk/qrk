@@ -11,13 +11,14 @@ import (
 type ObjectType string
 
 const (
-	INTEGER_OBJ = "INTEGER"
-	BOOLEAN_OBJ = "BOOLEAN"
-	NULL_OBJ    = "NULL"
-	RETURN_OBJ  = "RETURN_OBJECT"
-	ERROR_OBJ   = "ERROR"
-	FUNC_OBJ    = "FUNCTION"
-	STRING_OBJ  = "STRING"
+	INTEGER_OBJ  = "INTEGER"
+	BOOLEAN_OBJ  = "BOOLEAN"
+	NULL_OBJ     = "NULL"
+	RETURN_OBJ   = "RETURN_OBJECT"
+	ERROR_OBJ    = "ERROR"
+	FUNC_OBJ     = "FUNCTION"
+	BUILT_IN_OBJ = "BUILT_IN"
+	STRING_OBJ   = "STRING"
 )
 
 type Object interface {
@@ -118,4 +119,13 @@ func (fn *Function) Inspect() string {
 	out.WriteString("}\n")
 
 	return out.String()
+}
+
+type BuiltInFunction struct {
+	Fn func(args ...Object) Object
+}
+
+func (fn *BuiltInFunction) Type() ObjectType { return BUILT_IN_OBJ }
+func (fn *BuiltInFunction) Inspect() string {
+	return "builtIn function"
 }
