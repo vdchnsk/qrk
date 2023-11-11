@@ -467,3 +467,23 @@ func TestArrays(t *testing.T) {
 		}
 	}
 }
+
+func TestArraysIndecies(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedOutput interface{}
+	}{
+		{`[1,2][0];`, 1},
+		{`[1][-1];`, nil},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		integer, ok := tt.expectedOutput.(int)
+		if ok {
+			testIntegerObject(t, evaluated, int64(integer))
+		} else {
+			testNullObject(t, evaluated)
+		}
+	}
+}
