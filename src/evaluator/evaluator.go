@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/vdchnsk/i-go/src/ast"
-	"github.com/vdchnsk/i-go/src/error"
 	"github.com/vdchnsk/i-go/src/object"
 	"github.com/vdchnsk/i-go/src/token"
 )
@@ -205,7 +204,7 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 	default:
 		return newError(
 			"%s: %s%s",
-			error.UNKNOWN_OPERATOR, operator, right.Type(),
+			UNKNOWN_OPERATOR, operator, right.Type(),
 		)
 	}
 }
@@ -217,7 +216,7 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	if lType != rType {
 		return newError(
 			"%s: %s %s %s",
-			error.TYPE_MISMATCH, left.Type(), operator, right.Type(),
+			TYPE_MISMATCH, left.Type(), operator, right.Type(),
 		)
 	}
 
@@ -239,7 +238,7 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	default:
 		return newError(
 			"%s: %s %s %s",
-			error.UNKNOWN_OPERATOR, lType, operator, rType,
+			UNKNOWN_OPERATOR, lType, operator, rType,
 		)
 	}
 }
@@ -268,7 +267,7 @@ func evalInfixIntExpression(operator string, left, right object.Object) object.O
 	default:
 		return newError(
 			"%s: %s %s %s",
-			error.UNKNOWN_OPERATOR, left.Type(), operator, right.Type(),
+			UNKNOWN_OPERATOR, left.Type(), operator, right.Type(),
 		)
 	}
 }
@@ -283,7 +282,7 @@ func evalInfixStringExpression(operator string, left, right object.Object) objec
 	default:
 		return newError(
 			"%s: %s %s %s",
-			error.UNKNOWN_OPERATOR, left.Type(), operator, right.Type(),
+			UNKNOWN_OPERATOR, left.Type(), operator, right.Type(),
 		)
 	}
 }
@@ -305,7 +304,7 @@ func evalMinusOperatorExpression(right object.Object) object.Object {
 	if right.Type() != object.INTEGER_OBJ {
 		return newError(
 			"%s: -%s",
-			error.UNKNOWN_OPERATOR, right.Type(),
+			UNKNOWN_OPERATOR, right.Type(),
 		)
 	}
 
@@ -339,7 +338,7 @@ func evalIdentifier(identifier string, env *object.Environment) object.Object {
 
 	return newError(
 		"%s: %s",
-		error.IDENTIFIER_NOT_FOUND, identifier,
+		IDENTIFIER_NOT_FOUND, identifier,
 	)
 }
 
@@ -353,7 +352,10 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 	case *object.BuiltInFunction:
 		return fn.Fn(args...)
 	default:
-		return newError("not a function %s", fn.Type())
+		return newError(
+			"%s %s",
+			NOT_A_FUNCTION, fn.Type(),
+		)
 	}
 }
 
@@ -380,8 +382,8 @@ func evalIndexExpression(left, index object.Object) object.Object {
 		return evalArrayIndexExpression(left, index)
 	default:
 		return newError(
-			"index operator not supported %s",
-			left.Type(),
+			"%s %s",
+			INDEX_OPERATOR_NOT_SUPPORTED, left.Type(),
 		)
 	}
 }

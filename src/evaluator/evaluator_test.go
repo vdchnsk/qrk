@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/vdchnsk/i-go/src/lexer"
@@ -256,15 +257,15 @@ func TestErrorEval(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"1 + true;", "type mismatch: INTEGER + BOOLEAN"},
-		{"-true;", "unknown operator: -BOOLEAN"},
-		{"true + true;", "unknown operator: BOOLEAN + BOOLEAN"},
+		{"1 + true;", fmt.Sprintf("%s: INTEGER + BOOLEAN", TYPE_MISMATCH)},
+		{"-true;", fmt.Sprintf("%s: -BOOLEAN", UNKNOWN_OPERATOR)},
+		{"true + true;", fmt.Sprintf("%s: BOOLEAN + BOOLEAN", UNKNOWN_OPERATOR)},
 		{`
 		if (true) {
 			true + true;
 		}
 		return 10;
-		`, "unknown operator: BOOLEAN + BOOLEAN"},
+		`, fmt.Sprintf("%s: BOOLEAN + BOOLEAN", UNKNOWN_OPERATOR)},
 	}
 
 	for _, tt := range tests {
@@ -308,8 +309,8 @@ func TestErrorHandling(t *testing.T) {
 		input           string
 		expectedMessage string
 	}{
-		{"foobar", "identifier not found: foobar"},
-		{`"str"-"str"`, "unknown operator: STRING - STRING"},
+		{"foobar", fmt.Sprintf("%s: foobar", IDENTIFIER_NOT_FOUND)},
+		{`"str"-"str"`, fmt.Sprintf("%s: STRING - STRING", UNKNOWN_OPERATOR)},
 	}
 
 	for _, tt := range tests {
