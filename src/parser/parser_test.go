@@ -938,7 +938,7 @@ func TestCallExpressionParams(t *testing.T) {
 
 		if len(callExprArguments) != len(tt.expectedOutput) {
 			t.Fatalf(
-				"wrong number of arguments, expectedd=%d, got=%d,",
+				"wrong number of arguments, expected=%d, got=%d,",
 				len(tt.expectedOutput),
 				len(callExprArguments),
 			)
@@ -946,6 +946,52 @@ func TestCallExpressionParams(t *testing.T) {
 
 		for index := range callExprArguments {
 			testLiteralExpression(t, callExprArguments[index], tt.expectedOutput[index])
+		}
+	}
+}
+
+func TestArrayLiteral(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedOutput []int
+	}{
+		{"[1, 2];", []int{1, 2}},
+	}
+
+	for _, tt := range tests {
+		lexer := lexer.NewLexer(tt.input)
+		parser := NewParser(lexer)
+		program := parser.ParseProgram()
+		checkParserErrors(t, parser)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf(
+				"program.Body does not contain %d statements, got %d\n",
+				1, len(program.Statements),
+			)
+		}
+
+		statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf(
+				"program.Statements[0] is not ast.ExpressionStatement, got=%T",
+				program.Statements[0],
+			)
+		}
+
+		array, ok := statement.Value.(*ast.ArrayLiteral)
+		if !ok {
+			t.Fatalf(
+				"statement is not array literal, got=%T",
+				statement.Value,
+			)
+		}
+
+		if len(array.Elements) != len(tt.expectedOutput) {
+			t.Fatalf(
+				"unexpected amount of elements in the array, expected=%d, got=%d",
+				len(tt.expectedOutput), len(array.Elements),
+			)
 		}
 	}
 }
