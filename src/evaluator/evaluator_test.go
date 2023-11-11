@@ -474,7 +474,8 @@ func TestArraysIndecies(t *testing.T) {
 		expectedOutput interface{}
 	}{
 		{`[1,2][0];`, 1},
-		{`[1][-1];`, nil},
+		{`[1, 2, 3][-1];`, 3},
+		{`[1, 2, 3][4];`, nil},
 	}
 
 	for _, tt := range tests {

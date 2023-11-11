@@ -15,6 +15,23 @@ var (
 	FALSE = &object.Boolean{Value: false}
 )
 
+func isTruthy(obj object.Object) bool {
+	if obj == TRUE {
+		return true
+	}
+	if obj == NULL || obj == FALSE {
+		return false
+	}
+	return true
+}
+
+func isError(obj object.Object) bool {
+	if obj == nil {
+		return false
+	}
+	return obj.Type() == object.ERROR_OBJ
+}
+
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
@@ -371,29 +388,19 @@ func evalIndexExpression(left, index object.Object) object.Object {
 
 func evalArrayIndexExpression(array, index object.Object) object.Object {
 	arrayObject := array.(*object.Array)
-	indexValue := index.(*object.Integer).Value
+	guestIndex := index.(*object.Integer).Value
 
-	max := int64(len(arrayObject.Elements)) - 1
-
-	if indexValue < 0 || indexValue > max {
+	maxIndex := int64(len(arrayObject.Elements)) - 1
+	if guestIndex > maxIndex {
 		return NULL
 	}
-	return arrayObject.Elements[indexValue]
-}
 
-func isTruthy(obj object.Object) bool {
-	if obj == TRUE {
-		return true
+	var hostIndex int64
+	if guestIndex >= 0 {
+		hostIndex = guestIndex
+	} else {
+		hostIndex = int64(len(arrayObject.Elements)) + int64(guestIndex)
 	}
-	if obj == NULL || obj == FALSE {
-		return false
-	}
-	return true
-}
 
-func isError(obj object.Object) bool {
-	if obj == nil {
-		return false
-	}
-	return obj.Type() == object.ERROR_OBJ
+	return arrayObject.Elements[hostIndex]
 }
