@@ -438,3 +438,32 @@ func TestBuiltInFunctions(t *testing.T) {
 		}
 	}
 }
+
+func TestArrays(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedOutput []int64
+	}{
+		{`[1,2];`, []int64{1, 2}},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		result, ok := evaluated.(*object.Array)
+		if !ok {
+			t.Fatalf(
+				"object is not array, got=%T",
+				evaluated,
+			)
+		}
+		if len(result.Elements) != len(tt.expectedOutput) {
+			t.Fatalf(
+				"array has wrong amount of elements, expected=%d got=%d",
+				len(tt.expectedOutput), len(result.Elements),
+			)
+		}
+		for i, element := range result.Elements {
+			testIntegerObject(t, element, tt.expectedOutput[i])
+		}
+	}
+}
