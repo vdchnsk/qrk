@@ -40,6 +40,11 @@ func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
 }
 
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
+
 func NewParser(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		lexer:  l,
@@ -128,6 +133,24 @@ func (p *Parser) NextToken() {
 		return
 	}
 	p.peekToken = nextToken
+}
+
+func (p *Parser) currTokenIs(expectedCurrentToken token.TokenType) bool {
+	return p.currToken.Type == expectedCurrentToken
+}
+
+func (p *Parser) peekTokenIs(expectedPeekToken token.TokenType) bool {
+	return p.peekToken.Type == expectedPeekToken
+}
+
+func (p *Parser) expectPeek(expectedToken token.TokenType) bool {
+	if p.peekTokenIs(expectedToken) {
+		p.NextToken()
+		return true
+	}
+
+	p.PeekError(expectedToken)
+	return false
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
@@ -440,26 +463,3 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 
 	return array
 }
-
-func (p *Parser) currTokenIs(expectedCurrentToken token.TokenType) bool {
-	return p.currToken.Type == expectedCurrentToken
-}
-
-func (p *Parser) peekTokenIs(expectedPeekToken token.TokenType) bool {
-	return p.peekToken.Type == expectedPeekToken
-}
-
-func (p *Parser) expectPeek(expectedToken token.TokenType) bool {
-	if p.peekTokenIs(expectedToken) {
-		p.NextToken()
-		return true
-	}
-
-	p.PeekError(expectedToken)
-	return false
-}
-
-type (
-	prefixParseFn func() ast.Expression
-	infixParseFn  func(ast.Expression) ast.Expression
-)
