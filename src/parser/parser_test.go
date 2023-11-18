@@ -321,7 +321,7 @@ func testIntegerLiteral(t *testing.T, il ast.Expression, value int64) bool {
 	if !ok {
 		t.Errorf(
 			"il is not *ast.IntegerLiteral, got=%T",
-			intLit,
+			il,
 		)
 		return false
 	}
@@ -1023,5 +1023,71 @@ func TestIndexExpression(t *testing.T) {
 
 	if !testInfixExpression(t, indexExp.Index, 1, "+", 1) {
 		return
+	}
+}
+
+func TestHashMapLiteral(t *testing.T) {
+	input := `{ "check": 1, "69": 42 }`
+	expectedOutput := map[string]int64{
+		"check": 1,
+		"69":    42,
+	}
+
+	lexer := lexer.NewLexer(input)
+	parser := NewParser(lexer)
+	program := parser.ParseProgram()
+	checkParserErrors(t, parser)
+
+	statement := program.Statements[0].(*ast.ExpressionStatement)
+	hashMap, ok := statement.Value.(*ast.HashMapLiteral)
+	if !ok {
+		t.Errorf(
+			"provided statement is not HashMapLiteral, got=%T",
+			statement,
+		)
+	}
+	amountOfPairs := len(hashMap.Pairs)
+
+	if amountOfPairs != 2 {
+		t.Errorf(
+			"wrong amount of has map pairs, got=%d",
+			amountOfPairs,
+		)
+	}
+
+	for key, value := range hashMap.Pairs {
+		strLiteral, ok := key.(*ast.StringLiteral)
+		if !ok {
+			t.Errorf("key is not string")
+		}
+
+		expectedValue := expectedOutput[strLiteral.ToString()]
+
+		testIntegerLiteral(t, value, expectedValue)
+	}
+}
+
+func TestEmptyHashMap(t *testing.T) {
+	input := `{}`
+
+	lexer := lexer.NewLexer(input)
+	parser := NewParser(lexer)
+	program := parser.ParseProgram()
+
+	statement := program.Statements[0].(*ast.ExpressionStatement)
+	hashMap, ok := statement.Value.(*ast.HashMapLiteral)
+	if !ok {
+		t.Errorf(
+			"provided statement is not HashMapLiteral, got=%T",
+			statement,
+		)
+	}
+	amountOfPairs := len(hashMap.Pairs)
+
+	if amountOfPairs != 0 {
+		t.Errorf(
+			"wrong amount of has map pairs, got=%d",
+			amountOfPairs,
+		)
 	}
 }

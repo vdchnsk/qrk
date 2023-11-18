@@ -293,6 +293,27 @@ func (al *ArrayLiteral) ToString() string {
 	return out.String()
 }
 
+type HashMapLiteral struct {
+	Token token.Token // "{"
+	Pairs map[Expression]Expression
+}
+
+func (hml *HashMapLiteral) TokenLiteral() string { return hml.Token.Literal }
+func (hml *HashMapLiteral) expressionNode()      {}
+func (hml *HashMapLiteral) ToString() string {
+	var out bytes.Buffer
+
+	pairs := []string{}
+	for key, value := range hml.Pairs {
+		pairs = append(pairs, key.ToString()+":"+value.ToString())
+	}
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
+
+	return out.String()
+}
+
 type IndexExpression struct {
 	Token token.Token // "["
 	Left  Expression
