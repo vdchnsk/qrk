@@ -1,6 +1,10 @@
 package evaluator
 
-import "github.com/vdchnsk/i-go/src/object"
+import (
+	"fmt"
+
+	"github.com/vdchnsk/i-go/src/object"
+)
 
 func lenBuiltin(args ...object.Object) object.Object {
 	maxAllowedArgs := 1
@@ -24,8 +28,18 @@ func lenBuiltin(args ...object.Object) object.Object {
 	}
 }
 
+func print(args ...object.Object) object.Object {
+	for _, arg := range args {
+		fmt.Println(arg.Inspect())
+	}
+	return NULL
+}
+
 var builtInFuncs = map[string]*object.BuiltInFunction{
 	"len": {
 		Fn: lenBuiltin,
+	},
+	"print": {
+		Fn: print,
 	},
 }
