@@ -489,3 +489,31 @@ func TestArraysIndecies(t *testing.T) {
 		}
 	}
 }
+
+func TestHashLiteral(t *testing.T) {
+	input := `{"a": 42};`
+	expectedOutput := map[object.HashKey]int64{
+		(&object.String{Value: "a"}).HashKey(): 42,
+	}
+
+	evaluated := testEval(input)
+	result, ok := evaluated.(*object.HashMap)
+	if !ok {
+		t.Errorf("evaluated object is not hashMap")
+	}
+
+	if len(result.Pairs) != len(expectedOutput) {
+		t.Errorf(
+			"wrong amount of pairs, expected=%d, received=%d",
+			len(expectedOutput), len(result.Pairs),
+		)
+	}
+
+	for expectedKey, expectedValue := range expectedOutput {
+		pair, ok := result.Pairs[expectedKey]
+		if !ok {
+			t.Errorf("no pair for given key in Pairs")
+		}
+		testIntegerObject(t, pair.Value, expectedValue)
+	}
+}

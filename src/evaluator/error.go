@@ -7,4 +7,5 @@ const (
 	IDENTIFIER_NOT_FOUND         = "identifier not found"
 	NOT_A_FUNCTION               = "not a function"
 	INDEX_OPERATOR_NOT_SUPPORTED = "index operator not supported"
+	KEY_IS_NOT_HASHABLE          = "key is not hashable"
 )
