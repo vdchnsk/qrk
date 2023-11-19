@@ -5,6 +5,16 @@ Parser implements [**Pratt parsing algorithm**](https://journal.stuffwithstuff.c
 ### Code snippets
 
 ```haskell
+let fibanacci = fn(n) {
+    if (n < 2) {
+        return n;
+    }
+    return fibanacci(n-2) + fibanacci(n-1)
+}
+fibanacci(42)
+```
+
+```haskell
 let isAnswerOnTheLifeQuestion = fn(answer) { 
     let expectedAnswer = 42;
     return answer == expectedAnswer;
