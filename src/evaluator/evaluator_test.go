@@ -517,3 +517,24 @@ func TestHashLiteral(t *testing.T) {
 		testIntegerObject(t, pair.Value, expectedValue)
 	}
 }
+
+func TestHashMapIndecies(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedOutput interface{}
+	}{
+		{`{"1": 2}["1"];`, 2},
+		{`{"1": 3 + 3}["1"];`, 6},
+		{`{"1": 2}["check"];`, nil},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		integer, ok := tt.expectedOutput.(int)
+		if ok {
+			testIntegerObject(t, evaluated, int64(integer))
+		} else {
+			testNullObject(t, evaluated)
+		}
+	}
+}
