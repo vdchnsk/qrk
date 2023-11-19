@@ -383,6 +383,8 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
 		return evalArrayIndexExpression(left, index)
+	case left.Type() == object.HASH_MAP_OBJ:
+		return evalHashMapIndexExpression(left, index)
 	default:
 		return newError(
 			"%s %s",
@@ -438,4 +440,18 @@ func evalHashMap(node *ast.HashMapLiteral, env *object.Environment) object.Objec
 	}
 
 	return &object.HashMap{Pairs: pairs}
+}
+
+func evalHashMapIndexExpression(hashMap, index object.Object) object.Object {
+	hashMapObject := hashMap.(*object.HashMap)
+	hashMapIndex, ok := index.(object.Hashable)
+	if !ok {
+		return newError(PROVIDED_INDEX_CANNOT_BE_USED_AS_HASHMAP_KEY)
+	}
+
+	pair, ok := hashMapObject.Pairs[hashMapIndex.HashKey()]
+	if !ok {
+		return NULL
+	}
+	return pair.Value
 }
