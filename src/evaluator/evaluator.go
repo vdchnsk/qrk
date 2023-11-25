@@ -299,6 +299,8 @@ func evalInfixBooleanExpression(operator string, left, right object.Object) obje
 		return nativeBoolToBooleanObject(left != right)
 	case token.AND:
 		return nativeBoolToBooleanObject(leftVal && rightVal)
+	case token.OR:
+		return nativeBoolToBooleanObject(leftVal || rightVal)
 	default:
 		return newError(
 			"%s: %s %s %s",

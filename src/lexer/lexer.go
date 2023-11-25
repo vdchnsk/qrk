@@ -78,10 +78,19 @@ func (l *Lexer) NextToken() (token.Token, error) {
 		}
 	case '&':
 		currChar := l.currChar
-		isAndOperator := l.peekChar() == '&'
+		isAndOperator := l.peekChar() == currChar
 		if isAndOperator {
 			l.readChar()
 			tok = token.Token{Type: token.AND, Literal: string(currChar) + string(l.currChar)}
+		} else {
+			tok = newToken(token.ILLEGAL, l.currChar)
+		}
+	case '|':
+		currChar := l.currChar
+		isOrOperator := l.peekChar() == currChar
+		if isOrOperator {
+			l.readChar()
+			tok = token.Token{Type: token.OR, Literal: string(currChar) + string(l.currChar)}
 		} else {
 			tok = newToken(token.ILLEGAL, l.currChar)
 		}
