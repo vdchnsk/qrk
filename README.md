@@ -4,9 +4,9 @@ Parser implements [**Pratt parsing algorithm**](https://journal.stuffwithstuff.c
 
 ### Code snippets
 
-```haskell
+```rs
 let fibanacci = fn(n) {
-    if (n < 2) {
+    if n < 2 {
         return n;
     }
     return fibanacci(n-2) + fibanacci(n-1)
@@ -14,12 +14,20 @@ let fibanacci = fn(n) {
 fibanacci(42)
 ```
 
-```haskell
+```rs
 let isAnswerOnTheLifeQuestion = fn(answer) { 
     let expectedAnswer = 42;
     return answer == expectedAnswer;
 };
 isAnswerOnTheLifeQuestion(69);
+```
+
+```rs
+let person = {
+    "age": 10,
+    "live": fn() { print("living..."); },
+};
+person["live"]()
 ```
 
 ### 🚀 How to run locally

@@ -185,6 +185,8 @@ func TestEvalIfExpression(t *testing.T) {
 		{"if (true) { 10 }", 10},
 		{"if (false) { 10 } else { 42 }", 42},
 		{"if (false) { 10 }", nil},
+		{"if true { 10 }", 10},
+		{"if false { 10 }", nil},
 	}
 
 	for _, tt := range tests {
