@@ -233,17 +233,15 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return evalInfixStringExpression(operator, left, right)
 	}
 
-	switch operator {
-	case token.EQ:
-		return nativeBoolToBooleanObject(left == right)
-	case token.NOT_EQ:
-		return nativeBoolToBooleanObject(left != right)
-	default:
-		return newError(
-			"%s: %s %s %s",
-			UNKNOWN_OPERATOR, lType, operator, rType,
-		)
+	bothOperandsBools := lType == object.BOOLEAN_OBJ && rType == object.BOOLEAN_OBJ
+	if bothOperandsBools {
+		return evalInfixBooleanExpression(operator, left, right)
 	}
+
+	return newError(
+		"%s: %s %s %s",
+		UNKNOWN_OPERATOR, lType, operator, rType,
+	)
 }
 
 func evalInfixIntExpression(operator string, left, right object.Object) object.Object {
@@ -282,6 +280,25 @@ func evalInfixStringExpression(operator string, left, right object.Object) objec
 	switch operator {
 	case token.PLUS:
 		return &object.String{Value: leftVal + rightVal}
+	default:
+		return newError(
+			"%s: %s %s %s",
+			UNKNOWN_OPERATOR, left.Type(), operator, right.Type(),
+		)
+	}
+}
+
+func evalInfixBooleanExpression(operator string, left, right object.Object) object.Object {
+	leftVal := left.(*object.Boolean).Value
+	rightVal := right.(*object.Boolean).Value
+
+	switch operator {
+	case token.EQ:
+		return nativeBoolToBooleanObject(left == right)
+	case token.NOT_EQ:
+		return nativeBoolToBooleanObject(left != right)
+	case token.AND:
+		return nativeBoolToBooleanObject(leftVal && rightVal)
 	default:
 		return newError(
 			"%s: %s %s %s",
