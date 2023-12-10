@@ -309,11 +309,11 @@ func (p *Parser) parseAssign() *ast.AssignStatement {
 		return nil
 	}
 
-	statement := &ast.AssignStatement{Token: p.currToken, Identifier: ident}
-
 	if !p.expectPeek(token.ASSIGN) {
 		return nil
 	}
+
+	statement := &ast.AssignStatement{Token: p.currToken, Identifier: ident}
 
 	p.NextToken()
 	statement.Value = p.parseExpression(LOWEST)
