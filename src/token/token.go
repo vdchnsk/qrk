@@ -43,6 +43,7 @@ const (
 	GT       = ">"
 	EQ       = "=="
 	NOT_EQ   = "!="
+	ARROW    = "=>"
 	AND      = "&&"
 	OR       = "||"
 	// Delimiters

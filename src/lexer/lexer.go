@@ -48,11 +48,14 @@ func (l *Lexer) NextToken() (token.Token, error) {
 	switch l.currChar {
 	case '=':
 		currChar := l.currChar
-		isComparison := l.peekChar() == '='
-		if isComparison {
+		switch l.peekChar() {
+		case '=':
 			l.readChar()
 			tok = token.Token{Type: token.EQ, Literal: string(currChar) + string(currChar)}
-		} else {
+		case '>':
+			l.readChar()
+			tok = token.Token{Type: token.ARROW, Literal: "=>"}
+		default:
 			tok = newToken(token.ASSIGN, currChar)
 		}
 	case '+':
