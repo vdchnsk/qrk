@@ -45,4 +45,6 @@ go mod download
 ```bash
 make run
 ```
-![image](https://github.com/vdchnsk/quasark/assets/64404596/e71e4366-4ea4-4e6a-8a09-8464bd16db43)
+
+![image](https://github.com/vdchnsk/quasark/assets/64404596/5c51f070-0884-473f-b38a-299f0fbbfa4e)
+
