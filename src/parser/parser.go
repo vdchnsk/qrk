@@ -230,15 +230,16 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 }
 
 func (p *Parser) parseStatement() ast.Statement {
-	if p.currToken.Type == token.IDENT && p.peekTokenIs(token.ASSIGN) {
-		return p.parseAssign()
-	}
-
 	switch p.currToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
+	case token.IDENT:
+		if p.peekTokenIs(token.ASSIGN) {
+			return p.parseAssign()
+		}
+		return p.parseExpressionStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
