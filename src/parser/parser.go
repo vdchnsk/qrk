@@ -230,6 +230,10 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 }
 
 func (p *Parser) parseStatement() ast.Statement {
+	if p.currToken.Type == token.IDENT && p.peekTokenIs(token.ASSIGN) {
+		return p.parseAssign()
+	}
+
 	switch p.currToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
@@ -283,6 +287,28 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	}
 
 	statement.Identifier = &ast.Identifier{Token: p.currToken, Value: p.currToken.Literal}
+
+	if !p.expectPeek(token.ASSIGN) {
+		return nil
+	}
+
+	p.NextToken()
+	statement.Value = p.parseExpression(LOWEST)
+
+	for p.peekTokenIs(token.SEMICOLON) {
+		p.NextToken()
+	}
+
+	return statement
+}
+
+func (p *Parser) parseAssign() *ast.AssignStatement {
+	ident, ok := p.parseIdentifer().(*ast.Identifier)
+	if !ok {
+		return nil
+	}
+
+	statement := &ast.AssignStatement{Token: p.currToken, Identifier: ident}
 
 	if !p.expectPeek(token.ASSIGN) {
 		return nil

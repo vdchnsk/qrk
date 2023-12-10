@@ -80,6 +80,13 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		env.Put(node.Identifier.Value, val)
 
+	case *ast.AssignStatement:
+		val := Eval(node.Value, env)
+		if isError(val) {
+			return val
+		}
+		env.Put(node.Identifier.Value, val)
+
 	case *ast.Identifier:
 		return evalIdentifier(node.Value, env)
 
