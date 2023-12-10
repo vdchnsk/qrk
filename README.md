@@ -1,4 +1,4 @@
-### i-go interpreter
+### quasark interpreter
 
 Parser implements [**Pratt parsing algorithm**](https://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/)
 
@@ -45,4 +45,4 @@ go mod download
 ```bash
 make run
 ```
-![image](https://github.com/vdchnsk/i-go/assets/64404596/e71e4366-4ea4-4e6a-8a09-8464bd16db43)
+![image](https://github.com/vdchnsk/quasark/assets/64404596/e71e4366-4ea4-4e6a-8a09-8464bd16db43)

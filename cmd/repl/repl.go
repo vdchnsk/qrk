@@ -5,19 +5,22 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/vdchnsk/i-go/src/evaluator"
-	"github.com/vdchnsk/i-go/src/lexer"
-	"github.com/vdchnsk/i-go/src/object"
-	"github.com/vdchnsk/i-go/src/parser"
+	"github.com/vdchnsk/quasark/src/evaluator"
+	"github.com/vdchnsk/quasark/src/lexer"
+	"github.com/vdchnsk/quasark/src/object"
+	"github.com/vdchnsk/quasark/src/parser"
 )
 
 const PRMOPT = "> "
 const REPL_WELCOME_MESSAGE = `
-   _             
-  (_)______  ___ 
- / /___/ _ \/ _ \
-/_/    \_  /\___/
-      /___/      
+                                        _    
+                                       | |   
+  ____  _   _   ____  ___   ____  _ __ | | __
+ / _  || | | | / _  |/ __| / _  || '__|| |/ /
+| (_| || |_| || (_| |\__ \| (_| || |   |   < 
+ \__  | \____| \____||___/ \__,_||_|   |_|\_\
+    | |                                      
+    |_|                                      
 `
 
 func Start(in io.Reader, out io.Writer) {

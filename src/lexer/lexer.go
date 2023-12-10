@@ -3,8 +3,8 @@ package lexer
 import (
 	"errors"
 
-	"github.com/vdchnsk/i-go/src/token"
-	"github.com/vdchnsk/i-go/src/utils"
+	"github.com/vdchnsk/quasark/src/token"
+	"github.com/vdchnsk/quasark/src/utils"
 )
 
 type Lexer struct {

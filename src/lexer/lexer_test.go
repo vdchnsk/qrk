@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	"github.com/vdchnsk/i-go/src/token"
+	"github.com/vdchnsk/quasark/src/token"
 )
 
 func TestNextToken(t *testing.T) {

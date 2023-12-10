@@ -3,7 +3,7 @@ package evaluator
 import (
 	"fmt"
 
-	"github.com/vdchnsk/i-go/src/object"
+	"github.com/vdchnsk/quasark/src/object"
 )
 
 func lenBuiltin(args ...object.Object) object.Object {

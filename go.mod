@@ -1,3 +1,3 @@
-module github.com/vdchnsk/i-go
+module github.com/vdchnsk/quasark
 
 go 1.21

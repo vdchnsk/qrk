@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/vdchnsk/i-go/src/token"
+	"github.com/vdchnsk/quasark/src/token"
 )
 
 type Node interface {

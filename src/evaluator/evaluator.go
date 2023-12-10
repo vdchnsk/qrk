@@ -3,9 +3,9 @@ package evaluator
 import (
 	"fmt"
 
-	"github.com/vdchnsk/i-go/src/ast"
-	"github.com/vdchnsk/i-go/src/object"
-	"github.com/vdchnsk/i-go/src/token"
+	"github.com/vdchnsk/quasark/src/ast"
+	"github.com/vdchnsk/quasark/src/object"
+	"github.com/vdchnsk/quasark/src/token"
 )
 
 var (
