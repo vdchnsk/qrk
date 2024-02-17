@@ -5,13 +5,17 @@ Parser implements [**Pratt parsing algorithm**](https://journal.stuffwithstuff.c
 ### 📃 Code snippets
 
 ```rs
+print("Goodbye universe!");
+```
+
+```rs
 let fibanacci = fn(n) {
     if n < 2 {
         return n;
     }
-    return fibanacci(n-2) + fibanacci(n-1)
+    return fibanacci(n-2) + fibanacci(n-1);
 }
-fibanacci(42)
+fibanacci(42);
 ```
 
 ```rs
@@ -27,7 +31,7 @@ let person = {
     "age": 10,
     "live": fn() { print("living..."); },
 };
-person["live"]()
+person["live"]();
 ```
 
 ### 🚀 How to run locally
@@ -45,5 +49,3 @@ go mod download
 ```bash
 make run
 ```
-
-![image](https://github.com/vdchnsk/qrk/assets/64404596/5c51f070-0884-473f-b38a-299f0fbbfa4e)
