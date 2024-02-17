@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/vdchnsk/quasark/src/ast"
-	"github.com/vdchnsk/quasark/src/lexer"
-	"github.com/vdchnsk/quasark/src/utils"
+	"github.com/vdchnsk/qrk/src/ast"
+	"github.com/vdchnsk/qrk/src/lexer"
+	"github.com/vdchnsk/qrk/src/utils"
 )
 
 func TestLetStatement(t *testing.T) {

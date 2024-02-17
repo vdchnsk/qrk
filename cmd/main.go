@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/vdchnsk/quasark/cmd/repl"
+	"github.com/vdchnsk/qrk/cmd/repl"
 )
 
 func main() {

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/vdchnsk/quasark/src/lexer"
-	"github.com/vdchnsk/quasark/src/object"
-	"github.com/vdchnsk/quasark/src/parser"
+	"github.com/vdchnsk/qrk/src/lexer"
+	"github.com/vdchnsk/qrk/src/object"
+	"github.com/vdchnsk/qrk/src/parser"
 )
 
 func testEval(input string) object.Object {

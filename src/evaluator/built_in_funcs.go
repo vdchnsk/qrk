@@ -3,7 +3,7 @@ package evaluator
 import (
 	"fmt"
 
-	"github.com/vdchnsk/quasark/src/object"
+	"github.com/vdchnsk/qrk/src/object"
 )
 
 func lenBuiltin(args ...object.Object) object.Object {
@@ -11,7 +11,7 @@ func lenBuiltin(args ...object.Object) object.Object {
 
 	if len(args) > maxAllowedArgs {
 		return newError(
-			"wrong number arguments passed to len func, got=%d, supported=%d",
+			"wrong number of arguments passed to len func, got=%d, supported=%d",
 			len(args), maxAllowedArgs,
 		)
 	}

@@ -1,4 +1,4 @@
-## 🌌 Quasark Interpreter
+## 🌌 qrk programming language interpreter
 
 Parser implements [**Pratt parsing algorithm**](https://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/)
 
@@ -46,5 +46,4 @@ go mod download
 make run
 ```
 
-![image](https://github.com/vdchnsk/quasark/assets/64404596/5c51f070-0884-473f-b38a-299f0fbbfa4e)
-
+![image](https://github.com/vdchnsk/qrk/assets/64404596/5c51f070-0884-473f-b38a-299f0fbbfa4e)

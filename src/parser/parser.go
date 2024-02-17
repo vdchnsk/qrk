@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/vdchnsk/quasark/src/ast"
-	"github.com/vdchnsk/quasark/src/lexer"
-	"github.com/vdchnsk/quasark/src/token"
+	"github.com/vdchnsk/qrk/src/ast"
+	"github.com/vdchnsk/qrk/src/lexer"
+	"github.com/vdchnsk/qrk/src/token"
 )
 
 const (

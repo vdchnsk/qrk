@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/vdchnsk/quasark/src/token"
+	"github.com/vdchnsk/qrk/src/token"
 )
 
 type Node interface {

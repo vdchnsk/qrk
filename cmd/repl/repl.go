@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/vdchnsk/quasark/src/evaluator"
-	"github.com/vdchnsk/quasark/src/lexer"
-	"github.com/vdchnsk/quasark/src/object"
-	"github.com/vdchnsk/quasark/src/parser"
+	"github.com/vdchnsk/qrk/src/evaluator"
+	"github.com/vdchnsk/qrk/src/lexer"
+	"github.com/vdchnsk/qrk/src/object"
+	"github.com/vdchnsk/qrk/src/parser"
 )
 
 const PRMOPT = "> "

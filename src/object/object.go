@@ -6,7 +6,7 @@ import (
 	"hash/fnv"
 	"strings"
 
-	"github.com/vdchnsk/quasark/src/ast"
+	"github.com/vdchnsk/qrk/src/ast"
 )
 
 type ObjectType string

@@ -1,8 +1,8 @@
 run: build
-	@./bin/quasark
+	@./bin/qrk
 
 build:
-	@go build -o bin/quasark ./cmd
+	@go build -o bin/qrk ./cmd
 
 test:
 	@go test ./... -v
