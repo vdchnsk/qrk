@@ -12,19 +12,10 @@ import (
 )
 
 const PRMOPT = "> "
-const REPL_WELCOME_MESSAGE = `
-                                        _    
-                                       | |   
-  ____  _   _   ____  ___   ____  _ __ | | __
- / _  || | | | / _  |/ __| / _  || '__|| |/ /
-| (_| || |_| || (_| |\__ \| (_| || |   |   < 
- \__  | \____| \____||___/ \__,_||_|   |_|\_\
-    | |                                      
-    |_|                                      
-`
+const REPL_WELCOME_MESSAGE = "Welcome to qrk, the language that's easier to learn than to pronounce. (Seriously, how do you say 'qrk'?)"
 
 func Start(in io.Reader, out io.Writer) {
-	fmt.Print(REPL_WELCOME_MESSAGE)
+	fmt.Println(REPL_WELCOME_MESSAGE)
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnvironment()
 
