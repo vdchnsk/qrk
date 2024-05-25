@@ -53,7 +53,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 	case *ast.Boolean:
-		return nativeBoolToBooleanObject(node.Value)
+		return hostToGuestBoolean(node.Value)
 
 	case *ast.PrefixExpression:
 		right := Eval(node.Right, env)
@@ -151,7 +151,7 @@ func newError(format string, args ...interface{}) *object.Error {
 	return &object.Error{Message: fmt.Sprintf(format, args...)}
 }
 
-func nativeBoolToBooleanObject(input bool) *object.Boolean {
+func hostToGuestBoolean(input bool) *object.Boolean {
 	if input {
 		return TRUE
 	} else {
@@ -265,13 +265,13 @@ func evalInfixIntExpression(operator string, left, right object.Object) object.O
 	case token.ASTERISK:
 		return &object.Integer{Value: leftVal * rightVal}
 	case token.LT:
-		return nativeBoolToBooleanObject(leftVal < rightVal)
+		return hostToGuestBoolean(leftVal < rightVal)
 	case token.GT:
-		return nativeBoolToBooleanObject(leftVal > rightVal)
+		return hostToGuestBoolean(leftVal > rightVal)
 	case token.EQ:
-		return nativeBoolToBooleanObject(leftVal == rightVal)
+		return hostToGuestBoolean(leftVal == rightVal)
 	case token.NOT_EQ:
-		return nativeBoolToBooleanObject(leftVal != rightVal)
+		return hostToGuestBoolean(leftVal != rightVal)
 	default:
 		return newError(
 			"%s: %s %s %s",
@@ -301,13 +301,13 @@ func evalInfixBooleanExpression(operator string, left, right object.Object) obje
 
 	switch operator {
 	case token.EQ:
-		return nativeBoolToBooleanObject(left == right)
+		return hostToGuestBoolean(left == right)
 	case token.NOT_EQ:
-		return nativeBoolToBooleanObject(left != right)
+		return hostToGuestBoolean(left != right)
 	case token.AND:
-		return nativeBoolToBooleanObject(leftVal && rightVal)
+		return hostToGuestBoolean(leftVal && rightVal)
 	case token.OR:
-		return nativeBoolToBooleanObject(leftVal || rightVal)
+		return hostToGuestBoolean(leftVal || rightVal)
 	default:
 		return newError(
 			"%s: %s %s %s",
