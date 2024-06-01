@@ -36,20 +36,13 @@ func Run(input string, env *object.Environment, out io.Writer) object.Object {
 	parser := parser.NewParser(lexer)
 
 	program := parser.ParseProgram()
+
 	if len(parser.Errors()) != 0 {
-		printParserErrors(out, parser.Errors())
+		parser.PrettyPrintErrors(out)
 		return nil
 	}
 
 	evalRes := evaluator.Eval(program, env)
 
 	return evalRes
-}
-
-func printParserErrors(out io.Writer, errors []string) {
-	io.WriteString(out, "Syntax error! \n")
-
-	for _, msg := range errors {
-		io.WriteString(out, "\t"+msg+"\n")
-	}
 }

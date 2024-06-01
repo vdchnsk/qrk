@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"io"
 	"strconv"
 
 	"github.com/vdchnsk/qrk/src/ast"
@@ -126,6 +127,14 @@ func (p *Parser) PeekError(t token.TokenType) {
 		t, p.peekToken.Type,
 	)
 	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) PrettyPrintErrors(out io.Writer) {
+	io.WriteString(out, "Syntax error! \n")
+
+	for _, msg := range p.errors {
+		io.WriteString(out, "\t"+msg+"\n")
+	}
 }
 
 func (p *Parser) noPrefixParseFnError(t token.TokenType) {
