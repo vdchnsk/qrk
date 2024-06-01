@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/vdchnsk/qrk/src/evaluator"
-	"github.com/vdchnsk/qrk/src/lexer"
 	"github.com/vdchnsk/qrk/src/object"
-	"github.com/vdchnsk/qrk/src/parser"
+	"github.com/vdchnsk/qrk/src/runner"
 )
 
 func Start(in io.Reader, out io.Writer) {
@@ -24,17 +22,7 @@ func Start(in io.Reader, out io.Writer) {
 			return
 		}
 
-		line := scanner.Text()
-		lexer := lexer.NewLexer(line)
-		parser := parser.NewParser(lexer)
-
-		program := parser.ParseProgram()
-		if len(parser.Errors()) != 0 {
-			printParserErrors(out, parser.Errors())
-			continue
-		}
-
-		evaluated := evaluator.Eval(program, env)
+		evaluated := runner.Run(scanner.Text(), env, out)
 
 		if evaluated == nil {
 			continue

@@ -1,5 +1,5 @@
 run: build
-	@./bin/qrk
+	@./bin/qrk $(FILE)
 
 build:
 	@go build -o bin/qrk ./cmd
