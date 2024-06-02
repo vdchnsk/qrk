@@ -414,6 +414,14 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	funcLit := &ast.FuncLiteral{
 		Token: p.currToken,
 	}
+
+	if p.peekTokenIs(token.IDENT) {
+		p.NextToken()
+
+		funcIdentifier := p.parseIdentifier().(*ast.Identifier)
+		funcLit.Identifier = funcIdentifier
+	}
+
 	if !p.expectPeek(token.LPAREN) {
 		return nil
 	}

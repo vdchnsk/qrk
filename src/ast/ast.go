@@ -248,6 +248,7 @@ type FuncLiteral struct {
 	Token      token.Token // The token "fn"
 	Parameters []*Identifier
 	Body       *BlockStatement
+	Identifier *Identifier
 }
 
 func (fl *FuncLiteral) TokenLiteral() string { return fl.Token.Literal }

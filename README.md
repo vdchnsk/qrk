@@ -9,7 +9,7 @@ print("Goodbye universe!");
 ```
 
 ```rs
-let fibanacci = fn(n) {
+fn fibanacci(n) {
     if n < 2 {
         return n;
     }
@@ -19,7 +19,7 @@ fibanacci(42);
 ```
 
 ```rs
-let isAnswerOnTheLifeQuestion = fn(answer) { 
+fn isAnswerOnTheLifeQuestion(answer) { 
     let expectedAnswer = 42;
     return answer == expectedAnswer;
 };

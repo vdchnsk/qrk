@@ -104,11 +104,17 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		params := node.Parameters
 		body := node.Body
 
-		return &object.Function{
+		funcObj := &object.Function{
 			Parameters: params,
 			Body:       body,
 			Env:        env,
 		}
+
+		if node.Identifier != nil {
+			env.Put(node.Identifier.Value, funcObj)
+		}
+
+		return funcObj
 
 	case *ast.CallExpression:
 		fn := Eval(node.Function, env)
