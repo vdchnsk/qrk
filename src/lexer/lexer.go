@@ -153,7 +153,7 @@ func newToken(tokenType token.TokenType, char byte) token.Token {
 func (l *Lexer) skipWhitespace() {
 	whitespaces := []byte{' ', '\t', '\r', '\n'}
 
-	for utils.Contains[byte](whitespaces, l.currChar) {
+	for utils.Contains(whitespaces, l.currChar) {
 		l.readChar()
 	}
 }
