@@ -46,18 +46,6 @@ func (l *Lexer) NextToken() (token.Token, error) {
 	l.skipWhitespace()
 
 	switch l.currChar {
-	case '=':
-		currChar := l.currChar
-		switch l.peekChar() {
-		case '=':
-			l.readChar()
-			tok = token.Token{Type: token.EQ, Literal: string(currChar) + string(currChar)}
-		case '>':
-			l.readChar()
-			tok = token.Token{Type: token.ARROW, Literal: "=>"}
-		default:
-			tok = newToken(token.ASSIGN, currChar)
-		}
 	case '+':
 		tok = newToken(token.PLUS, l.currChar)
 	case '-':
@@ -70,6 +58,39 @@ func (l *Lexer) NextToken() (token.Token, error) {
 		tok = newToken(token.LT, l.currChar)
 	case '>':
 		tok = newToken(token.GT, l.currChar)
+	case '(':
+		tok = newToken(token.LPAREN, l.currChar)
+	case ')':
+		tok = newToken(token.RPAREN, l.currChar)
+	case '{':
+		tok = newToken(token.LBRACE, l.currChar)
+	case '}':
+		tok = newToken(token.RBRACE, l.currChar)
+	case '[':
+		tok = newToken(token.LBRACKET, l.currChar)
+	case ']':
+		tok = newToken(token.RBRACKET, l.currChar)
+	case ';':
+		tok = newToken(token.SEMICOLON, l.currChar)
+	case ':':
+		tok = newToken(token.COLON, l.currChar)
+	case ',':
+		tok = newToken(token.COMMA, l.currChar)
+	case 0:
+		tok.Literal = ""
+		tok.Type = token.EOF
+	case '=':
+		currChar := l.currChar
+		switch l.peekChar() {
+		case '=':
+			l.readChar()
+			tok = token.Token{Type: token.EQ, Literal: string(currChar) + string(currChar)}
+		case '>':
+			l.readChar()
+			tok = token.Token{Type: token.ARROW, Literal: "=>"}
+		default:
+			tok = newToken(token.ASSIGN, currChar)
+		}
 	case '!':
 		currChar := l.currChar
 		isComparison := l.peekChar() == '='
@@ -97,27 +118,6 @@ func (l *Lexer) NextToken() (token.Token, error) {
 		} else {
 			tok = newToken(token.ILLEGAL, l.currChar)
 		}
-	case '(':
-		tok = newToken(token.LPAREN, l.currChar)
-	case ')':
-		tok = newToken(token.RPAREN, l.currChar)
-	case '{':
-		tok = newToken(token.LBRACE, l.currChar)
-	case '}':
-		tok = newToken(token.RBRACE, l.currChar)
-	case '[':
-		tok = newToken(token.LBRACKET, l.currChar)
-	case ']':
-		tok = newToken(token.RBRACKET, l.currChar)
-	case ';':
-		tok = newToken(token.SEMICOLON, l.currChar)
-	case ':':
-		tok = newToken(token.COLON, l.currChar)
-	case ',':
-		tok = newToken(token.COMMA, l.currChar)
-	case 0:
-		tok.Literal = ""
-		tok.Type = token.EOF
 	case '"':
 		strValue, err := l.readString()
 		if err != nil {
