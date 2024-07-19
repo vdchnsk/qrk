@@ -199,7 +199,7 @@ func (pe *PrefixExpression) ToString() string {
 }
 
 type InfixExpression struct {
-	Token    token.Token // The prfix token e.g "-"
+	Token    token.Token // The infix token e.g `+`
 	Left     Expression
 	Operator string
 	Right    Expression
