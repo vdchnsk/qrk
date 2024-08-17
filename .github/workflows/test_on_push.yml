@@ -1,14 +1,18 @@
-name: Run Tests
+name: Build and Test
 
 on:
   push:
     branches:
       - main
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+defaults:
+  run:
+    shell: bash
+    working-directory: ./
+  runs-on: ubuntu-latest
 
+jobs:
+  setup:
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -18,8 +22,25 @@ jobs:
       with:
         go-version: 1.22
 
+  build:
+    needs: setup
+
+    steps:
+    - name: Use workspace from setup
+      run: echo "Workspace setup complete"
+      
     - name: Download dependencies
       run: go mod download
 
-    - name: Run make test
+    - name: Build application
+      run: go build ./...
+
+  test:
+    needs: build
+
+    steps:
+    - name: Use workspace from setup
+      run: echo "Workspace setup complete"
+      
+    - name: Run tests
       run: make test
