@@ -22,9 +22,6 @@ jobs:
     needs: setup
 
     steps:
-    - name: Use workspace from setup
-      run: echo "Workspace setup complete"
-      
     - name: Download dependencies
       run: go mod download
 
@@ -36,8 +33,5 @@ jobs:
     needs: build
 
     steps:
-    - name: Use workspace from setup
-      run: echo "Workspace setup complete"
-      
     - name: Run tests
       run: make test
