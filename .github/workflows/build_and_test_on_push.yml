@@ -23,7 +23,13 @@ jobs:
 
     steps:
     - name: Download dependencies
-      run: go mod download
+      run: |
+        dependency_count=$(go list -m all | wc -l)
+        are_dependencies_present=$([ "$dependency_count" -gt 1 ] && echo true || echo false)
+
+        if [ "$are_dependencies_present" = true ]; then
+          go mod download
+        fi
 
     - name: Build application
       run: go build ./...
