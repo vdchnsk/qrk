@@ -1,0 +1,43 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest  
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.22
+
+  build:
+    runs-on: ubuntu-latest  
+    needs: setup
+
+    steps:
+    - name: Use workspace from setup
+      run: echo "Workspace setup complete"
+      
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Build application
+      run: go build ./...
+
+  test:
+    runs-on: ubuntu-latest 
+    needs: build
+
+    steps:
+    - name: Use workspace from setup
+      run: echo "Workspace setup complete"
+      
+    - name: Run tests
+      run: make test
