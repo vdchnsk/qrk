@@ -1,4 +1,4 @@
-name: Build and Test
+name: Run Tests
 
 on:
   push:
@@ -6,8 +6,9 @@ on:
       - main
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest  
+  build:
+    runs-on: ubuntu-latest
+
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -17,11 +18,6 @@ jobs:
       with:
         go-version: 1.22
 
-  build:
-    runs-on: ubuntu-latest  
-    needs: setup
-
-    steps:
     - name: Download dependencies
       run: |
         dependency_count=$(go list -m all | wc -l)
@@ -31,13 +27,5 @@ jobs:
           go mod download
         fi
 
-    - name: Build application
-      run: make build
-
-  test:
-    runs-on: ubuntu-latest 
-    needs: build
-
-    steps:
-    - name: Run tests
+    - name: Run make test
       run: make test
