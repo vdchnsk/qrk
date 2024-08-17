@@ -19,7 +19,7 @@ const (
 )
 
 var operandDefinitions = map[Opcode]*Definition{
-	OpConstant: {"OpConstant", []int{2}},
+	OpConstant: {Name: "OpConstant", OperandWidths: []int{2}},
 }
 
 func LookupDefinition(opcode byte) (*Definition, error) {
@@ -29,24 +29,29 @@ func LookupDefinition(opcode byte) (*Definition, error) {
 	}
 	return def, nil
 }
-func MakeInstruction(op Opcode, opernds ...int) []byte {
+
+func MakeInstruction(op Opcode, operands ...int) []byte {
 	operandDefinition, ok := operandDefinitions[op]
 	if !ok {
 		return []byte{}
 	}
 
-	bytesInInstruction := 1
-	for _, operandWidth := range operandDefinition.OperandWidths {
-		bytesInInstruction += operandWidth
+	if len(operands) != len(operandDefinition.OperandWidths) {
+		return []byte{}
 	}
 
-	instruction := make([]byte, bytesInInstruction)
+	instructionSize := 1
+	for _, operandWidth := range operandDefinition.OperandWidths {
+		instructionSize += operandWidth
+	}
+
+	instruction := make([]byte, instructionSize)
 
 	instruction[0] = byte(op)
 
 	offset := 1
 
-	for index, operand := range opernds {
+	for index, operand := range operands {
 		operandWidth := operandDefinition.OperandWidths[index]
 
 		switch operandWidth {
