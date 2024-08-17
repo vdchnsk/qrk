@@ -32,7 +32,7 @@ jobs:
         fi
 
     - name: Build application
-      run: go build ./...
+      run: make build
 
   test:
     runs-on: ubuntu-latest 
