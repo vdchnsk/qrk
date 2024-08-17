@@ -11,7 +11,7 @@ type Compiler struct {
 	constants    []object.Object
 }
 
-// Is what we pass to VM
+// Its what we pass to VM
 type Bytecode struct {
 	Instructions code.Instructions
 	Constants    []object.Object
@@ -24,8 +24,62 @@ func NewCompiler() *Compiler {
 	}
 }
 
-func (c *Compiler) Compile(program *ast.Program) error {
+func (c *Compiler) Compile(node ast.Node) error {
+	switch node := node.(type) {
+	case *ast.Program:
+		for _, statement := range node.Statements {
+			err := c.Compile(statement)
+			if err != nil {
+				return err
+			}
+		}
+
+	case *ast.ExpressionStatement:
+		err := c.Compile(node.Value)
+		if err != nil {
+			return err
+		}
+
+	case *ast.InfixExpression:
+		err := c.Compile(node.Left)
+		if err != nil {
+			return err
+		}
+
+		err = c.Compile(node.Right)
+		if err != nil {
+			return err
+		}
+
+	case *ast.IntegerLiteral:
+		integer := &object.Integer{Value: node.Value}
+
+		integerIndex := c.addConstant(integer)
+		c.emit(code.OpConstant, integerIndex)
+	}
+
 	return nil
+}
+
+func (c *Compiler) addConstant(obj object.Object) int {
+	c.constants = append(c.constants, obj)
+	index := len(c.constants) - 1
+
+	return index
+}
+
+func (c *Compiler) emit(opcode code.Opcode, operands ...int) int {
+	instruction := code.MakeInstruction(opcode, operands...)
+	position := c.addInstruction(instruction)
+
+	return position
+}
+
+func (c *Compiler) addInstruction(instruction []byte) int {
+	positionNewInstruction := len(c.instructions)
+	c.instructions = append(c.instructions, instruction...)
+
+	return positionNewInstruction
 }
 
 func (c *Compiler) Bytecode() *Bytecode {

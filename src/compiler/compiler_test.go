@@ -29,15 +29,15 @@ func flattenInstructions(instructions []code.Instructions) code.Instructions {
 }
 
 func testInstructions(expected []code.Instructions, actual code.Instructions) error {
-	concatted := flattenInstructions(expected)
+	flattenedExpected := flattenInstructions(expected)
 
-	if len(concatted) != len(actual) {
-		return fmt.Errorf("wrong instructions length.\nexpected=%q\ngot=%q", concatted, actual)
+	if len(flattenedExpected) != len(actual) {
+		return fmt.Errorf("wrong instructions length.\nexpected=%q\ngot=%q", flattenedExpected, actual)
 	}
 
-	for index, instruction := range concatted {
-		if actual[index] == instruction {
-			return fmt.Errorf("wrong instruction at %d.\nexpected=%q\ngot=%q", index, concatted, actual)
+	for index, instruction := range flattenedExpected {
+		if actual[index] != instruction {
+			return fmt.Errorf("wrong instruction at %d.\nexpected=%q\ngot=%q", index, flattenedExpected, actual)
 		}
 	}
 
