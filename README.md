@@ -49,3 +49,9 @@ go mod download
 ```bash
 make run
 ```
+
+- or run code from a file with `.qrk` extension
+
+```bash
+make run FILE="example.qrk"
+```
