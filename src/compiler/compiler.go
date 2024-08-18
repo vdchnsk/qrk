@@ -1,9 +1,12 @@
 package compiler
 
 import (
+	"fmt"
+
 	"github.com/vdchnsk/qrk/src/ast"
 	"github.com/vdchnsk/qrk/src/code"
 	"github.com/vdchnsk/qrk/src/object"
+	"github.com/vdchnsk/qrk/src/token"
 )
 
 type Compiler struct {
@@ -51,6 +54,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
+		err = c.compileInfixOperator(node.Operator)
+		if err != nil {
+			return err
+		}
+
 	case *ast.IntegerLiteral:
 		integer := &object.Integer{Value: node.Value}
 
@@ -58,6 +66,16 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.emit(code.OpConstant, integerIndex)
 	}
 
+	return nil
+}
+
+func (c *Compiler) compileInfixOperator(operator string) error {
+	switch operator {
+	case token.PLUS:
+		c.emit(code.OpAdd)
+	default:
+		return fmt.Errorf("unknown operator %s", operator)
+	}
 	return nil
 }
 

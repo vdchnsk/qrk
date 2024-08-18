@@ -1,6 +1,7 @@
 package code
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/vdchnsk/qrk/src/utils"
@@ -17,6 +18,8 @@ func TestMake(t *testing.T) {
 
 		// max int for 2 bytes is 65535 = 11111111(255) + 11111111(255)
 		{OpConstant, []int{utils.MaxIntForBytes(2)}, []byte{byte(OpConstant), 255, 255}},
+
+		{OpAdd, []int{}, []byte{byte(OpAdd)}},
 	}
 
 	for _, tt := range tests {
@@ -39,9 +42,15 @@ func TestInstructionToString(t *testing.T) {
 		MakeInstruction(OpConstant, 1),
 		MakeInstruction(OpConstant, 2),
 		MakeInstruction(OpConstant, utils.MaxIntForBytes(2)),
+		MakeInstruction(OpAdd),
 	}
 
-	expected := "0000 OpConstant 1\n0003 OpConstant 2\n0006 OpConstant 65535\n"
+	expected := strings.Join([]string{
+		"0000 OpConstant 1",
+		"0003 OpConstant 2",
+		"0006 OpConstant 65535",
+		"0009 OpAdd",
+	}, "\n") + "\n"
 
 	flattened := Instructions{}
 	for _, instructionBytes := range instructions {

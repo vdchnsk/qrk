@@ -91,6 +91,7 @@ func TestIntegerArithmetic(t *testing.T) {
 				// 0 and 1 point to indexes in the constants slice
 				code.MakeInstruction(code.OpConstant, 0),
 				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpAdd),
 			},
 		},
 	}
