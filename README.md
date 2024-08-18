@@ -1,4 +1,4 @@
-## 🌌 qrk programming language interpreter
+## 🌌 qrk programming language
 
 Parser implements [**Pratt parsing algorithm**](https://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/)
 
