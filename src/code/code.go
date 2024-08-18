@@ -40,8 +40,9 @@ func (instructions Instructions) ToString() string {
 		}
 
 		operands, readBytes := ReadOperands(opcodeDefinition, instructions[instructionByteIndex+1:])
+		formattedInstruction := instructions.fmt(opcodeDefinition, operands)
 
-		fmt.Fprintf(&out, "%04d %s\n", instructionByteIndex, instructions.fmt(opcodeDefinition, operands))
+		fmt.Fprintf(&out, "%04d %s\n", instructionByteIndex, formattedInstruction)
 
 		instructionByteIndex += 1 + readBytes
 	}
