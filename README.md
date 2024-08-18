@@ -2,6 +2,8 @@
 
 Parser implements [**Pratt parsing algorithm**](https://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/)
 
+Virtual machine is [**stack-based**](https://en.wikipedia.org/wiki/Stack_machine)
+
 ### 📃 Code snippets
 
 ```rs
