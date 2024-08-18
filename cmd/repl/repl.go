@@ -22,7 +22,8 @@ func Start(in io.Reader, out io.Writer) {
 			return
 		}
 
-		evaluated := runner.Run(scanner.Text(), env, out)
+		// TODO: add ability to specify run mode via CLI
+		evaluated := runner.Run(scanner.Text(), env, out, runner.Compile)
 
 		if evaluated == nil {
 			continue

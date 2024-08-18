@@ -5,11 +5,20 @@ import (
 	"io"
 	"os"
 
+	"github.com/vdchnsk/qrk/src/compiler"
 	"github.com/vdchnsk/qrk/src/evaluator"
 	"github.com/vdchnsk/qrk/src/fs"
 	"github.com/vdchnsk/qrk/src/lexer"
 	"github.com/vdchnsk/qrk/src/object"
 	"github.com/vdchnsk/qrk/src/parser"
+	"github.com/vdchnsk/qrk/src/vm"
+)
+
+type RunMode int
+
+const (
+	Compile RunMode = iota
+	Interpret
 )
 
 func RunFile(path string, out io.Writer) {
@@ -27,10 +36,10 @@ func RunFile(path string, out io.Writer) {
 	}
 
 	env := object.NewEnvironment()
-	Run(string(data), env, out)
+	Run(string(data), env, out, Interpret)
 }
 
-func Run(input string, env *object.Environment, out io.Writer) object.Object {
+func Run(input string, env *object.Environment, out io.Writer, mode RunMode) object.Object {
 	line := string(input)
 	lexer := lexer.NewLexer(line)
 	parser := parser.NewParser(lexer)
@@ -42,7 +51,28 @@ func Run(input string, env *object.Environment, out io.Writer) object.Object {
 		return nil
 	}
 
-	evalRes := evaluator.Eval(program, env)
+	switch mode {
+	case Interpret:
+		evalRes := evaluator.Eval(program, env)
+		return evalRes
 
-	return evalRes
+	case Compile:
+		compiler := compiler.NewCompiler()
+		err := compiler.Compile(program)
+		if err != nil {
+			fmt.Fprintf(out, "compilation failed: %s\n", err)
+		}
+
+		bytecode := compiler.Bytecode()
+		vm := vm.NewVm(bytecode)
+		err = vm.Run()
+		if err != nil {
+			fmt.Fprintf(out, "vm error: %s\n", err)
+		}
+
+		stackTopElem := vm.StackTop()
+		return stackTopElem
+	}
+
+	return nil
 }
