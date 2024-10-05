@@ -42,6 +42,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err != nil {
 			return err
 		}
+		c.emit(code.OpPop) // clean up expression statement from the stack, since it cannot be reused by anything else in future
 
 	case *ast.InfixExpression:
 		err := c.Compile(node.Left)

@@ -15,8 +15,10 @@ type VM struct {
 	constants    []object.Object
 	instructions code.Instructions
 
-	stack        []object.Object
-	stackPointer int // <- always points to the first free slot on the stack
+	stack []object.Object
+
+	// Always points to the first free slot on the stack
+	stackPointer int
 }
 
 func NewVm(bytecode *compiler.Bytecode) *VM {
@@ -59,6 +61,9 @@ func (vm *VM) Run() error {
 
 			result := leftValue + rightValue
 			vm.stackPush(&object.Integer{Value: result})
+
+		case code.OpPop:
+			vm.stackPop()
 		}
 	}
 
@@ -73,6 +78,13 @@ func (vm *VM) StackTop() object.Object {
 	topStackElem := vm.stack[vm.stackPointer-1]
 
 	return topStackElem
+}
+
+// Use only for tests
+func (vm *VM) LastPoppedStackElem() object.Object {
+	// since, when popping we only decrement the pointer and not actually overriding top of the stack with nil
+	// we can assume that after performing a pop() operation stack pointer will be pointing to the element that was just popped
+	return vm.stack[vm.stackPointer]
 }
 
 func (vm *VM) stackPush(elem object.Object) error {

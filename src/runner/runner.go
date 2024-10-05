@@ -70,7 +70,7 @@ func Run(input string, env *object.Environment, out io.Writer, mode RunMode) obj
 			fmt.Fprintf(out, "vm error: %s\n", err)
 		}
 
-		stackTopElem := vm.StackTop()
+		stackTopElem := vm.LastPoppedStackElem()
 		return stackTopElem
 	}
 
