@@ -74,6 +74,12 @@ func (c *Compiler) compileInfixOperator(operator string) error {
 	switch operator {
 	case token.PLUS:
 		c.emit(code.OpAdd)
+	case token.MINUS:
+		c.emit(code.OpSub)
+	case token.ASTERISK:
+		c.emit(code.OpMul)
+	case token.SLASH:
+		c.emit(code.OpDiv)
 	default:
 		return fmt.Errorf("unknown operator %s", operator)
 	}
