@@ -64,6 +64,8 @@ const (
 	OpMul
 	OpDiv
 	OpPop
+	OpTrue
+	OpFalse
 )
 
 var operandDefinitions = map[Opcode]*Definition{
@@ -73,6 +75,8 @@ var operandDefinitions = map[Opcode]*Definition{
 	OpMul:      {Name: "OpMul", OperandWidths: []int{}},
 	OpDiv:      {Name: "OpDiv", OperandWidths: []int{}},
 	OpPop:      {Name: "OpPop", OperandWidths: []int{}},
+	OpTrue:     {Name: "OpTrue", OperandWidths: []int{}},
+	OpFalse:    {Name: "OpFalse", OperandWidths: []int{}},
 }
 
 func LookupDefinition(opcode byte) (*Definition, error) {

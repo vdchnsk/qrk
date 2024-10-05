@@ -21,6 +21,9 @@ type VM struct {
 	stackPointer int
 }
 
+var True = &object.Boolean{Value: true}
+var False = &object.Boolean{Value: false}
+
 func NewVm(bytecode *compiler.Bytecode) *VM {
 	stack := make([]object.Object, StackSize)
 
@@ -53,6 +56,18 @@ func (vm *VM) Run() error {
 
 		case code.OpAdd, code.OpDiv, code.OpMul, code.OpSub:
 			err := vm.executeBinaryOperation(opcode)
+			if err != nil {
+				return err
+			}
+
+		case code.OpTrue:
+			err := vm.stackPush(True)
+			if err != nil {
+				return err
+			}
+
+		case code.OpFalse:
+			err := vm.stackPush(False)
 			if err != nil {
 				return err
 			}
