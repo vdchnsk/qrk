@@ -44,8 +44,19 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.emit(code.OpPop) // clean up expression statement from the stack, since it cannot be reused by anything else in future
 
+	case *ast.PrefixExpression:
+		err := c.Compile(node.Right)
+		if err != nil {
+			return err
+		}
+
+		err = c.compilePrefixOperator(node.Operator)
+		if err != nil {
+			return err
+		}
+
 	case *ast.InfixExpression:
-		operator, left, right, err := inferInfixExpressionComponets(node)
+		operator, left, right, err := inferInfixExpressionComponents(node)
 		if err != nil {
 			return err
 		}
@@ -82,12 +93,24 @@ func (c *Compiler) Compile(node ast.Node) error {
 	return nil
 }
 
-func inferInfixExpressionComponets(node *ast.InfixExpression) (string, ast.Expression, ast.Expression, error) {
+func inferInfixExpressionComponents(node *ast.InfixExpression) (string, ast.Expression, ast.Expression, error) {
 	if node.Operator == token.LT {
 		return token.GT, node.Right, node.Left, nil
 	}
 
 	return node.Operator, node.Left, node.Right, nil
+}
+
+func (c *Compiler) compilePrefixOperator(operator string) error {
+	switch operator {
+	case token.BANG:
+		c.emit(code.OpBang)
+	case token.MINUS:
+		c.emit(code.OpMinus)
+	default:
+		return fmt.Errorf("unknown prefix operator %s", operator)
+	}
+	return nil
 }
 
 func (c *Compiler) compileInfixOperator(operator string) error {
@@ -111,7 +134,7 @@ func (c *Compiler) compileInfixOperator(operator string) error {
 	case token.OR:
 		c.emit(code.OpOr)
 	default:
-		return fmt.Errorf("unknown operator %s", operator)
+		return fmt.Errorf("unknown infix operator %s", operator)
 	}
 	return nil
 }

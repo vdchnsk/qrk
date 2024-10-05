@@ -87,6 +87,18 @@ func (vm *VM) Run() error {
 				return nil
 			}
 
+		case code.OpBang:
+			err := vm.executeBangOperation()
+			if err != nil {
+				return nil
+			}
+
+		case code.OpMinus:
+			err := vm.executeMinusOperation()
+			if err != nil {
+				return nil
+			}
+
 		case code.OpPop:
 			vm.stackPop()
 		}
@@ -175,6 +187,32 @@ func (vm *VM) executeBinaryIntOperation(op code.Opcode, left, right object.Objec
 	vm.stackPush(&object.Integer{Value: result})
 
 	return nil
+}
+
+func (vm *VM) executeBangOperation() error {
+	operand := vm.stackPop()
+
+	switch operand {
+	case True:
+		return vm.stackPush(False)
+	case False:
+		return vm.stackPush(True)
+	default:
+		return vm.stackPush(False)
+	}
+}
+
+func (vm *VM) executeMinusOperation() error {
+	operand := vm.stackPop()
+
+	if operand.Type() != object.INTEGER_OBJ {
+		return fmt.Errorf("unsupported type for minus operator: %s", operand.Type())
+	}
+
+	currentValue := operand.(*object.Integer).Value
+	oppositeInt := &object.Integer{Value: -currentValue}
+
+	return vm.stackPush(oppositeInt)
 }
 
 func (vm *VM) StackTop() object.Object {

@@ -74,6 +74,9 @@ const (
 	OpAnd
 	OpOr
 
+	OpMinus
+	OpBang
+
 	OpPop
 )
 
@@ -93,6 +96,9 @@ var operandDefinitions = map[Opcode]*Definition{
 	OpGreaterThan: {Name: "OpGreatedThan", OperandWidths: []int{}},
 	OpAnd:         {Name: "OpAnd", OperandWidths: []int{}},
 	OpOr:          {Name: "OpOr", OperandWidths: []int{}},
+
+	OpMinus: {Name: "OpMinus", OperandWidths: []int{}},
+	OpBang:  {Name: "OpBang", OperandWidths: []int{}},
 
 	OpPop: {Name: "OpPop", OperandWidths: []int{}},
 }
