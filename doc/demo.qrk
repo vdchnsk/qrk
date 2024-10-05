@@ -1,0 +1,12 @@
+let a = ["1"];
+
+print(a[0]);
+
+fn fibanacci(n) {
+    if n < 2 {
+        return n; 
+    }
+    return fibanacci(n-2) + fibanacci(n-1);
+}
+
+print(fibanacci(4));
