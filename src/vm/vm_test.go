@@ -18,15 +18,26 @@ func parse(input string) *ast.Program {
 	return p.ParseProgram()
 }
 
-func testIntegerObject(expected int64, actual object.Object) error {
-	result, ok := actual.(*object.Integer)
+func testObject[T bool | int64](expected T, actual object.Object) error {
+	var result T
 
-	if !ok {
-		return fmt.Errorf("object is not Integer. got=%T (%+v)", actual, actual)
+	switch v := actual.(type) {
+	case *object.Integer:
+		if _, ok := any(expected).(int64); !ok {
+			return fmt.Errorf("expected int64, got %T", expected)
+		}
+		result = any(v.Value).(T)
+	case *object.Boolean:
+		if _, ok := any(expected).(bool); !ok {
+			return fmt.Errorf("expected bool, got %T", expected)
+		}
+		result = any(v.Value).(T)
+	default:
+		return fmt.Errorf("unsupported object type: %T", actual)
 	}
 
-	if result.Value != expected {
-		return fmt.Errorf("object has wrong value. got=%d, expected=%d", result.Value, expected)
+	if result != expected {
+		return fmt.Errorf("object has wrong value. got=%v, expected=%v", result, expected)
 	}
 
 	return nil
@@ -66,12 +77,17 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 func testExpectedObject(t *testing.T, expectedObj interface{}, actualObj object.Object) {
 	t.Helper()
 
+	var err error
+
 	switch expectedObj := expectedObj.(type) {
 	case int:
-		err := testIntegerObject(int64(expectedObj), actualObj)
-		if err != nil {
-			t.Errorf("testIntegerObject failed: %s", err)
-		}
+		err = testObject(int64(expectedObj), actualObj)
+	case bool:
+		err = testObject(expectedObj, actualObj)
+	}
+
+	if err != nil {
+		t.Errorf("testExpectedObject failed: %s", err)
 	}
 }
 
@@ -89,6 +105,14 @@ func TestIntegerArithmetic(t *testing.T) {
 		{input: "5 * 2 + 10", expected: 20},
 		{input: "5 + 2 * 10", expected: 25},
 		{input: "5 * (2 + 10)", expected: 60},
+	}
+
+	runVmTests(t, tests)
+}
+
+func TestBooleanExpressions(t *testing.T) {
+	tests := []vmTestCase{
+		{input: "true;", expected: true},
 	}
 
 	runVmTests(t, tests)
