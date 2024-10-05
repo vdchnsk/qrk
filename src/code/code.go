@@ -59,24 +59,42 @@ type Definition struct {
 
 const (
 	OpConstant Opcode = iota
+
 	OpAdd
 	OpSub
 	OpMul
 	OpDiv
-	OpPop
+
 	OpTrue
 	OpFalse
+
+	OpEqual
+	OpNotEqual
+	OpGreaterThan
+	OpAnd
+	OpOr
+
+	OpPop
 )
 
 var operandDefinitions = map[Opcode]*Definition{
 	OpConstant: {Name: "OpConstant", OperandWidths: []int{2}},
-	OpAdd:      {Name: "OpAdd", OperandWidths: []int{}},
-	OpSub:      {Name: "OpSub", OperandWidths: []int{}},
-	OpMul:      {Name: "OpMul", OperandWidths: []int{}},
-	OpDiv:      {Name: "OpDiv", OperandWidths: []int{}},
-	OpPop:      {Name: "OpPop", OperandWidths: []int{}},
-	OpTrue:     {Name: "OpTrue", OperandWidths: []int{}},
-	OpFalse:    {Name: "OpFalse", OperandWidths: []int{}},
+
+	OpAdd: {Name: "OpAdd", OperandWidths: []int{}},
+	OpSub: {Name: "OpSub", OperandWidths: []int{}},
+	OpMul: {Name: "OpMul", OperandWidths: []int{}},
+	OpDiv: {Name: "OpDiv", OperandWidths: []int{}},
+
+	OpTrue:  {Name: "OpTrue", OperandWidths: []int{}},
+	OpFalse: {Name: "OpFalse", OperandWidths: []int{}},
+
+	OpEqual:       {Name: "OpEqual", OperandWidths: []int{}},
+	OpNotEqual:    {Name: "OpNotEqual", OperandWidths: []int{}},
+	OpGreaterThan: {Name: "OpGreatedThan", OperandWidths: []int{}},
+	OpAnd:         {Name: "OpAnd", OperandWidths: []int{}},
+	OpOr:          {Name: "OpOr", OperandWidths: []int{}},
+
+	OpPop: {Name: "OpPop", OperandWidths: []int{}},
 }
 
 func LookupDefinition(opcode byte) (*Definition, error) {

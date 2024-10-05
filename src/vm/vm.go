@@ -21,8 +21,17 @@ type VM struct {
 	stackPointer int
 }
 
-var True = &object.Boolean{Value: true}
-var False = &object.Boolean{Value: false}
+var (
+	True  = &object.Boolean{Value: true}
+	False = &object.Boolean{Value: false}
+)
+
+func nativeToObjectBoolean(nativeValue bool) object.Object {
+	if nativeValue {
+		return True
+	}
+	return False
+}
 
 func NewVm(bytecode *compiler.Bytecode) *VM {
 	stack := make([]object.Object, StackSize)
@@ -72,6 +81,12 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case code.OpEqual, code.OpNotEqual, code.OpGreaterThan, code.OpAnd, code.OpOr:
+			err := vm.executeComparisonOperation(opcode)
+			if err != nil {
+				return nil
+			}
+
 		case code.OpPop:
 			vm.stackPop()
 		}
@@ -92,6 +107,50 @@ func (vm *VM) executeBinaryOperation(op code.Opcode) error {
 	}
 
 	return fmt.Errorf("unsuppoerted type for binary operation: %s %s", leftType, rightType)
+}
+
+func (vm *VM) executeComparisonOperation(op code.Opcode) error {
+	right := vm.stackPop()
+	left := vm.stackPop()
+
+	rightType := right.Type()
+	leftType := left.Type()
+
+	if leftType == object.INTEGER_OBJ && rightType == object.INTEGER_OBJ {
+
+		return vm.executeIntegerComparison(op, left, right)
+	}
+
+	switch op {
+	case code.OpEqual:
+		return vm.stackPush(nativeToObjectBoolean(right == left))
+	case code.OpNotEqual:
+		return vm.stackPush(nativeToObjectBoolean(right != left))
+	case code.OpAnd:
+		return vm.stackPush(nativeToObjectBoolean(left.(*object.Boolean).Value && right.(*object.Boolean).Value))
+	case code.OpOr:
+		return vm.stackPush(nativeToObjectBoolean(left.(*object.Boolean).Value || right.(*object.Boolean).Value))
+	default:
+		return fmt.Errorf("unsuppoerted type for binary operation: %s %s", leftType, rightType)
+	}
+
+}
+
+func (vm *VM) executeIntegerComparison(opcode code.Opcode, left, right object.Object) error {
+	rightValue := right.(*object.Integer).Value
+	leftValue := left.(*object.Integer).Value
+
+	switch opcode {
+	case code.OpEqual:
+		return vm.stackPush(nativeToObjectBoolean(leftValue == rightValue))
+	case code.OpNotEqual:
+		return vm.stackPush(nativeToObjectBoolean(leftValue != rightValue))
+	case code.OpGreaterThan:
+		return vm.stackPush(nativeToObjectBoolean(leftValue > rightValue))
+	default:
+		return fmt.Errorf("unknown integer operator %d", opcode)
+	}
+
 }
 
 func (vm *VM) executeBinaryIntOperation(op code.Opcode, left, right object.Object) error {

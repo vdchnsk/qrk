@@ -45,17 +45,22 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.emit(code.OpPop) // clean up expression statement from the stack, since it cannot be reused by anything else in future
 
 	case *ast.InfixExpression:
-		err := c.Compile(node.Left)
+		operator, left, right, err := inferInfixExpressionComponets(node)
 		if err != nil {
 			return err
 		}
 
-		err = c.Compile(node.Right)
+		err = c.Compile(left)
 		if err != nil {
 			return err
 		}
 
-		err = c.compileInfixOperator(node.Operator)
+		err = c.Compile(right)
+		if err != nil {
+			return err
+		}
+
+		err = c.compileInfixOperator(operator)
 		if err != nil {
 			return err
 		}
@@ -77,6 +82,14 @@ func (c *Compiler) Compile(node ast.Node) error {
 	return nil
 }
 
+func inferInfixExpressionComponets(node *ast.InfixExpression) (string, ast.Expression, ast.Expression, error) {
+	if node.Operator == token.LT {
+		return token.GT, node.Right, node.Left, nil
+	}
+
+	return node.Operator, node.Left, node.Right, nil
+}
+
 func (c *Compiler) compileInfixOperator(operator string) error {
 	switch operator {
 	case token.PLUS:
@@ -87,6 +100,16 @@ func (c *Compiler) compileInfixOperator(operator string) error {
 		c.emit(code.OpMul)
 	case token.SLASH:
 		c.emit(code.OpDiv)
+	case token.EQ:
+		c.emit(code.OpEqual)
+	case token.NOT_EQ:
+		c.emit(code.OpNotEqual)
+	case token.GT:
+		c.emit(code.OpGreaterThan)
+	case token.AND:
+		c.emit(code.OpAnd)
+	case token.OR:
+		c.emit(code.OpOr)
 	default:
 		return fmt.Errorf("unknown operator %s", operator)
 	}

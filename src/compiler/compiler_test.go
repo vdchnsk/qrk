@@ -158,6 +158,96 @@ func TestBooleanExpressions(t *testing.T) {
 				code.MakeInstruction(code.OpPop),
 			},
 		},
+		{
+			input:             "1 > 2",
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpGreaterThan),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             "1 < 2",
+			expectedConstants: []interface{}{2, 1},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpGreaterThan),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             "1 == 2",
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpEqual),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             "1 != 2",
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpNotEqual),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             "true == true",
+			expectedConstants: []interface{}{},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpTrue),
+				code.MakeInstruction(code.OpTrue),
+				code.MakeInstruction(code.OpEqual),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             "true && true",
+			expectedConstants: []interface{}{},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpTrue),
+				code.MakeInstruction(code.OpTrue),
+				code.MakeInstruction(code.OpAnd),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             "true || false",
+			expectedConstants: []interface{}{},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpTrue),
+				code.MakeInstruction(code.OpFalse),
+				code.MakeInstruction(code.OpOr),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             "false || false",
+			expectedConstants: []interface{}{},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpFalse),
+				code.MakeInstruction(code.OpFalse),
+				code.MakeInstruction(code.OpOr),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             "true != false",
+			expectedConstants: []interface{}{},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpTrue),
+				code.MakeInstruction(code.OpFalse),
+				code.MakeInstruction(code.OpNotEqual),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
 	}
 
 	runCompilerTests(t, tests)
