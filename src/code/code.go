@@ -78,6 +78,9 @@ const (
 	OpBang
 
 	OpPop
+
+	OpGotoNotTruthy // goto only if value of top of the stack is not truthy
+	OpGoto
 )
 
 var operandDefinitions = map[Opcode]*Definition{
@@ -101,6 +104,9 @@ var operandDefinitions = map[Opcode]*Definition{
 	OpBang:  {Name: "OpBang", OperandWidths: []int{}},
 
 	OpPop: {Name: "OpPop", OperandWidths: []int{}},
+
+	OpGotoNotTruthy: {Name: "OpGotoNotTruthy", OperandWidths: []int{2}},
+	OpGoto:          {Name: "OpGoto", OperandWidths: []int{2}},
 }
 
 func LookupDefinition(opcode byte) (*Definition, error) {

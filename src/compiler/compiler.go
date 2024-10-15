@@ -10,8 +10,10 @@ import (
 )
 
 type Compiler struct {
-	instructions code.Instructions
-	constants    []object.Object
+	instructions        code.Instructions
+	constants           []object.Object
+	lastInstruction     EmittedInstruction
+	previousInstruction EmittedInstruction
 }
 
 // Its what we pass to VM
@@ -20,10 +22,17 @@ type Bytecode struct {
 	Constants    []object.Object
 }
 
+type EmittedInstruction struct {
+	Opcode   code.Opcode
+	Position int
+}
+
 func NewCompiler() *Compiler {
 	return &Compiler{
-		instructions: code.Instructions{},
-		constants:    []object.Object{},
+		instructions:        code.Instructions{},
+		constants:           []object.Object{},
+		lastInstruction:     EmittedInstruction{},
+		previousInstruction: EmittedInstruction{},
 	}
 }
 
@@ -88,6 +97,34 @@ func (c *Compiler) Compile(node ast.Node) error {
 		} else {
 			c.emit(code.OpFalse)
 		}
+
+	case *ast.IfExpression:
+		err := c.Compile(node.Condition)
+		if err != nil {
+			return err
+		}
+
+		gotoNotTruthyPosition := c.emit(code.OpGotoNotTruthy, 9999)
+
+		err = c.Compile(node.Consequence)
+		if err != nil {
+			return err
+		}
+
+		if c.isLastInstructionPop() {
+			c.removeLastInstruction()
+		}
+
+		afterConsequencePosition := len(c.instructions)
+		c.replaceOperand(gotoNotTruthyPosition, afterConsequencePosition)
+
+	case *ast.BlockStatement:
+		for _, statement := range node.Statements {
+			err := c.Compile(statement)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
@@ -150,7 +187,41 @@ func (c *Compiler) emit(opcode code.Opcode, operands ...int) int {
 	instruction := code.MakeInstruction(opcode, operands...)
 	position := c.addInstruction(instruction)
 
+	c.setLastInstruction(opcode, position)
+
 	return position
+}
+
+func (c *Compiler) removeLastInstruction() {
+	c.instructions = c.instructions[:c.lastInstruction.Position]
+	c.lastInstruction = c.previousInstruction
+}
+
+func (c *Compiler) replaceInstruction(position int, newInstruction []byte) {
+	for i := 0; i < len(newInstruction); i++ {
+		c.instructions[position+i] = newInstruction[i]
+	}
+}
+
+// we can only replace operands of the same type, with the same non-variable length
+func (c *Compiler) replaceOperand(replaceAt int, operand int) {
+	opcode := code.Opcode(c.instructions[replaceAt])
+
+	newInstruction := code.MakeInstruction(opcode, operand) // 15, 1 -> 15, 7
+
+	c.replaceInstruction(replaceAt, newInstruction)
+}
+
+func (c *Compiler) setLastInstruction(opcode code.Opcode, position int) {
+	previous := c.lastInstruction
+	last := EmittedInstruction{Opcode: opcode, Position: position}
+
+	c.previousInstruction = previous
+	c.lastInstruction = last
+}
+
+func (c *Compiler) isLastInstructionPop() bool {
+	return c.lastInstruction.Opcode == code.OpPop
 }
 
 func (c *Compiler) addInstruction(instruction []byte) int {
