@@ -104,7 +104,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		gotoNotTruthyPosition := c.emit(code.OpGotoNotTruthy, 9999)
+		gotoNotTruthyPosition := c.emit(code.OpGotoNotTruthy, -1)
 
 		err = c.Compile(node.Consequence)
 		if err != nil {
