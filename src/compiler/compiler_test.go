@@ -32,12 +32,12 @@ func testInstructions(expected []code.Instructions, actual code.Instructions) er
 	flattenedExpected := flattenInstructions(expected)
 
 	if len(flattenedExpected) != len(actual) {
-		return fmt.Errorf("wrong instructions length.\nexpected=%q\ngot=%q", flattenedExpected, actual)
+		return fmt.Errorf("wrong instructions length.\nexpected=%q\ngot=%q", flattenedExpected.ToString(), actual.ToString())
 	}
 
 	for index, instruction := range flattenedExpected {
 		if actual[index] != instruction {
-			return fmt.Errorf("wrong instruction at %d.\nexpected=%q\ngot=%q", index, flattenedExpected, actual)
+			return fmt.Errorf("wrong instruction at %d.\nexpected=%q\ngot=%q", index, flattenedExpected.ToString(), actual.ToString())
 		}
 	}
 
