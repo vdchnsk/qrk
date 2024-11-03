@@ -106,13 +106,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 		gotoNotTruthyPosition := c.emit(code.OpGotoNotTruthy, -1)
 
-		err = c.Compile(node.Consequence)
+		err = c.compileBranch(node.Consequence)
 		if err != nil {
 			return err
-		}
-
-		if c.isLastInstructionPop() {
-			c.removeLastInstruction()
 		}
 
 		hasElse := node.Alternative != nil
@@ -125,13 +121,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 			afterConsequencePosition := len(c.instructions)
 			c.replaceOperand(gotoNotTruthyPosition, afterConsequencePosition)
 
-			err := c.Compile(node.Alternative)
+			err := c.compileBranch(node.Alternative)
 			if err != nil {
 				return err
-			}
-
-			if c.isLastInstructionPop() {
-				c.removeLastInstruction()
 			}
 
 			afterAlternativePosition := len(c.instructions)
@@ -148,6 +140,20 @@ func (c *Compiler) Compile(node ast.Node) error {
 				return err
 			}
 		}
+	}
+
+	return nil
+}
+
+func (c *Compiler) compileBranch(branch *ast.BlockStatement) error {
+	err := c.Compile(branch)
+
+	if err != nil {
+		return nil
+	}
+
+	if c.isLastInstructionPop() {
+		c.removeLastInstruction()
 	}
 
 	return nil
