@@ -291,6 +291,28 @@ func TestConditionals(t *testing.T) {
 				code.MakeInstruction(code.OpPop),
 			},
 		},
+		{
+			input:             `if (true) { 10 } else { 20 }; 3333;`,
+			expectedConstants: []interface{}{10, 20, 3333},
+			expectedInstructions: []code.Instructions{
+				// 0000
+				code.MakeInstruction(code.OpTrue),
+				// 0001
+				code.MakeInstruction(code.OpGotoNotTruthy, 10), // go to else if top-of-the-stack value is not truthy
+				// 0004
+				code.MakeInstruction(code.OpConstant, 0),
+				// 0007
+				code.MakeInstruction(code.OpGoto, 13), // skip else
+				// 0010
+				code.MakeInstruction(code.OpConstant, 1),
+				// 0013
+				code.MakeInstruction(code.OpPop),
+				// 0014
+				code.MakeInstruction(code.OpConstant, 2),
+				// 0017
+				code.MakeInstruction(code.OpPop),
+			},
+		},
 	}
 
 	runCompilerTests(t, tests)

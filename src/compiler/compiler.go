@@ -115,8 +115,31 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.removeLastInstruction()
 		}
 
-		afterConsequencePosition := len(c.instructions)
-		c.replaceOperand(gotoNotTruthyPosition, afterConsequencePosition)
+		hasElse := node.Alternative != nil
+
+		if hasElse {
+			// this goto must be the last instruction of if block
+			// to skip else condition
+			afterConditionPosition := c.emit(code.OpGoto, -1)
+
+			afterConsequencePosition := len(c.instructions)
+			c.replaceOperand(gotoNotTruthyPosition, afterConsequencePosition)
+
+			err := c.Compile(node.Alternative)
+			if err != nil {
+				return err
+			}
+
+			if c.isLastInstructionPop() {
+				c.removeLastInstruction()
+			}
+
+			afterAlternativePosition := len(c.instructions)
+			c.replaceOperand(afterConditionPosition, afterAlternativePosition)
+		} else {
+			afterConsequencePosition := len(c.instructions)
+			c.replaceOperand(gotoNotTruthyPosition, afterConsequencePosition)
+		}
 
 	case *ast.BlockStatement:
 		for _, statement := range node.Statements {
