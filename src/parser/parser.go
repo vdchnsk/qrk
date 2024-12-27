@@ -474,7 +474,7 @@ func (p *Parser) parseCallExpression(fn ast.Expression) ast.Expression {
 		Token:    p.currToken,
 		Function: fn,
 	}
-	callExpr.Argments = p.parseExpressionList(token.RPAREN)
+	callExpr.Arguments = p.parseExpressionList(token.RPAREN)
 	return callExpr
 }
 

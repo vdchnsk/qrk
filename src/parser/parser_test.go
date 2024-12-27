@@ -894,15 +894,15 @@ func TestCallExpression(t *testing.T) {
 		)
 	}
 
-	if len(callExpression.Argments) != 2 {
+	if len(callExpression.Arguments) != 2 {
 		t.Fatalf(
 			"call expression got unexpected amount of arguments, expected=%d got=%d",
 			2,
-			len(callExpression.Argments),
+			len(callExpression.Arguments),
 		)
 	}
-	testLiteralExpression(t, callExpression.Argments[0], 3)
-	testLiteralExpression(t, callExpression.Argments[1], 14)
+	testLiteralExpression(t, callExpression.Arguments[0], 3)
+	testLiteralExpression(t, callExpression.Arguments[1], 14)
 }
 
 func TestCallExpressionParams(t *testing.T) {
@@ -941,7 +941,7 @@ func TestCallExpressionParams(t *testing.T) {
 				statement.Value,
 			)
 		}
-		callExprArguments := callExpression.Argments
+		callExprArguments := callExpression.Arguments
 
 		if len(callExprArguments) != len(tt.expectedOutput) {
 			t.Fatalf(

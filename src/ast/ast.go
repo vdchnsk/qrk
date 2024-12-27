@@ -273,9 +273,9 @@ func (fl *FuncLiteral) String() string {
 }
 
 type CallExpression struct {
-	Token    token.Token // "("
-	Function Expression  // either Identifier or Function declaration
-	Argments []Expression
+	Token     token.Token // "("
+	Function  Expression  // either Identifier or Function declaration
+	Arguments []Expression
 }
 
 func (ce *CallExpression) TokenLiteral() string { return ce.Token.Literal }
@@ -285,7 +285,7 @@ func (ce *CallExpression) String() string {
 
 	args := []string{}
 
-	for _, arg := range ce.Argments {
+	for _, arg := range ce.Arguments {
 		args = append(args, arg.String())
 	}
 	out.WriteString(ce.Function.String())
