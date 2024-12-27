@@ -367,16 +367,16 @@ func TestFunctionObject(t *testing.T) {
 			evaluated, evaluated,
 		)
 	}
-	if params[0].ToString() != "a" || params[1].ToString() != "b" {
+	if params[0].String() != "a" || params[1].String() != "b" {
 		t.Errorf(
 			"wrong parameters, got=%T, expected=%s",
 			params, "(a, b)",
 		)
 	}
-	if fn.Body.ToString() != expectedBody {
+	if fn.Body.String() != expectedBody {
 		t.Errorf(
 			"wrong body, got=%s, expected=%s",
-			fn.Body.ToString(), expectedBody,
+			fn.Body.String(), expectedBody,
 		)
 	}
 }

@@ -138,14 +138,14 @@ func (fn *Function) Inspect() string {
 
 	params := []string{}
 	for _, p := range fn.Parameters {
-		params = append(params, p.ToString())
+		params = append(params, p.String())
 	}
 
 	out.WriteString("fn")
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") {\n")
-	out.WriteString(fn.Body.ToString())
+	out.WriteString(fn.Body.String())
 	out.WriteString("}\n")
 
 	return out.String()

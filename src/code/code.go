@@ -29,7 +29,7 @@ func (instructions Instructions) fmt(opcodeDefinition *Definition, operands []in
 	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", opcodeDefinition.Name)
 }
 
-func (instructions Instructions) ToString() string {
+func (instructions Instructions) String() string {
 	var out bytes.Buffer
 
 	instructionByteIndex := 0

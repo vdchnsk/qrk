@@ -37,7 +37,7 @@ func TestMake(t *testing.T) {
 	}
 }
 
-func TestInstructionToString(t *testing.T) {
+func TestInstructionString(t *testing.T) {
 	instructions := []Instructions{
 		MakeInstruction(OpConstant, 1),
 		MakeInstruction(OpConstant, 2),
@@ -57,8 +57,8 @@ func TestInstructionToString(t *testing.T) {
 		flattened = append(flattened, instructionBytes...)
 	}
 
-	if flattened.ToString() != expected {
-		t.Errorf("instructions wrongly formatted.\nexpected=%q\ngot=%q", expected, flattened.ToString())
+	if flattened.String() != expected {
+		t.Errorf("instructions wrongly formatted.\nexpected=%q\ngot=%q", expected, flattened.String())
 	}
 }
 

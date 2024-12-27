@@ -619,7 +619,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		program := parser.ParseProgram()
 		checkParserErrors(t, parser)
 
-		actualProgram := program.ToString()
+		actualProgram := program.String()
 
 		if utils.RemoveWhitespaces(actualProgram) != utils.RemoveWhitespaces(tt.expectedProgram) {
 			t.Fatalf(
@@ -1064,7 +1064,7 @@ func TestHashMapLiteral(t *testing.T) {
 			t.Errorf("key is not string")
 		}
 
-		expectedValue := expectedOutput[strLiteral.ToString()]
+		expectedValue := expectedOutput[strLiteral.String()]
 
 		testIntegerLiteral(t, value, expectedValue)
 	}
