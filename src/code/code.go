@@ -96,7 +96,7 @@ var operandDefinitions = map[Opcode]*Definition{
 
 	OpEqual:       {Name: "OpEqual", OperandWidths: []int{}},
 	OpNotEqual:    {Name: "OpNotEqual", OperandWidths: []int{}},
-	OpGreaterThan: {Name: "OpGreatedThan", OperandWidths: []int{}},
+	OpGreaterThan: {Name: "OpGreaterThan", OperandWidths: []int{}},
 	OpAnd:         {Name: "OpAnd", OperandWidths: []int{}},
 	OpOr:          {Name: "OpOr", OperandWidths: []int{}},
 
