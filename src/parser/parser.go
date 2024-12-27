@@ -171,8 +171,9 @@ func (p *Parser) expectPeek(expectedToken token.TokenType) bool {
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
-	program := &ast.Program{}
-	program.Statements = []ast.Statement{}
+	program := &ast.Program{
+		Statements: []ast.Statement{},
+	}
 
 	for !p.currTokenIs(token.EOF) {
 		statement := p.parseStatement()
