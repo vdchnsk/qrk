@@ -82,7 +82,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.AND, p.parseInfixExpression)
 	p.registerInfix(token.OR, p.parseInfixExpression)
 	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
-	p.registerInfix(token.LPAREN, p.parseCallExression)
+	p.registerInfix(token.LPAREN, p.parseCallExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 
 	return p
@@ -469,7 +469,7 @@ func (p *Parser) ParseFuncParams() []*ast.Identifier {
 	return params
 }
 
-func (p *Parser) parseCallExression(fn ast.Expression) ast.Expression {
+func (p *Parser) parseCallExpression(fn ast.Expression) ast.Expression {
 	callExpr := &ast.CallExpression{
 		Token:    p.currToken,
 		Function: fn,
