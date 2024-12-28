@@ -56,6 +56,11 @@ func testConstants(expected []interface{}, actual []object.Object) error {
 			if err != nil {
 				return fmt.Errorf("constant %d - testIntegerObject failed: %s", index, err)
 			}
+		case string:
+			err := testStringObject(constant, actual[index])
+			if err != nil {
+				return fmt.Errorf("constant %d - testIntegerObject failed: %s", index, err)
+			}
 		}
 	}
 
@@ -64,13 +69,25 @@ func testConstants(expected []interface{}, actual []object.Object) error {
 
 func testIntegerObject(expected int64, actual object.Object) error {
 	result, ok := actual.(*object.Integer)
-
 	if !ok {
 		return fmt.Errorf("object is not Integer. got=%T (%+v)", actual, actual)
 	}
 
 	if result.Value != expected {
 		return fmt.Errorf("object has wrong value. got=%d, expected=%d", result.Value, expected)
+	}
+
+	return nil
+}
+
+func testStringObject(expected string, actual object.Object) error {
+	result, ok := actual.(*object.String)
+	if !ok {
+		return fmt.Errorf("object is not Integer. got=%T (%+v)", actual, actual)
+	}
+
+	if result.Value != expected {
+		return fmt.Errorf("object has wrong value. got=%s, expected=%s", result.Value, expected)
 	}
 
 	return nil
@@ -389,6 +406,31 @@ func TestGlobalLetStatement(t *testing.T) {
 				code.MakeInstruction(code.OpGetGlobal, 0),
 				code.MakeInstruction(code.OpSetGlobal, 1),
 				code.MakeInstruction(code.OpGetGlobal, 1),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
+}
+
+func TestStringExpression(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             `"test"`,
+			expectedConstants: []interface{}{"test"},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             `"te" + "st"`,
+			expectedConstants: []interface{}{"te", "st"},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpAdd),
 				code.MakeInstruction(code.OpPop),
 			},
 		},
