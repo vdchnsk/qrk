@@ -39,13 +39,11 @@ func NewCompiler() *Compiler {
 }
 
 func NewCompilerWithState(symbolTable *SymbolTable, constants []object.Object) *Compiler {
-	return &Compiler{
-		instructions:        code.Instructions{},
-		constants:           constants,
-		lastInstruction:     EmittedInstruction{},
-		previousInstruction: EmittedInstruction{},
-		symbolTable:         symbolTable,
-	}
+	compiler := NewCompiler()
+	compiler.symbolTable = symbolTable
+	compiler.constants = constants
+
+	return compiler
 }
 
 func (c *Compiler) Compile(node ast.Node) error {

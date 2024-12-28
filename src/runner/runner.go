@@ -17,8 +17,8 @@ import (
 type RunMode int
 
 const (
-	Compile RunMode = iota
-	Interpret
+	CompileMode RunMode = iota
+	InterpretMode
 )
 
 func RunFile(path string, out io.Writer) {
@@ -36,10 +36,10 @@ func RunFile(path string, out io.Writer) {
 	}
 
 	env := object.NewEnvironment()
-	Run(string(data), env, out, Interpret)
+	Interpret(string(data), env, out)
 }
 
-func Run(input string, env *object.Environment, out io.Writer, mode RunMode) object.Object {
+func Interpret(input string, env *object.Environment, out io.Writer) object.Object {
 	line := string(input)
 	lexer := lexer.NewLexer(line)
 	parser := parser.NewParser(lexer)
@@ -51,28 +51,36 @@ func Run(input string, env *object.Environment, out io.Writer, mode RunMode) obj
 		return nil
 	}
 
-	switch mode {
-	case Interpret:
-		evalRes := evaluator.Eval(program, env)
-		return evalRes
+	evalRes := evaluator.Eval(program, env)
 
-	case Compile:
-		compiler := compiler.NewCompiler()
-		err := compiler.Compile(program)
-		if err != nil {
-			fmt.Fprintf(out, "compilation failed: %s\n", err)
-		}
+	return evalRes
+}
 
-		bytecode := compiler.Bytecode()
-		vm := vm.NewVm(bytecode)
-		err = vm.Run()
-		if err != nil {
-			fmt.Fprintf(out, "vm error: %s\n", err)
-		}
+func Compile(input string, out io.Writer, symbolTable *compiler.SymbolTable, constants []object.Object, globals []object.Object) object.Object {
+	line := string(input)
+	lexer := lexer.NewLexer(line)
+	parser := parser.NewParser(lexer)
 
-		stackTopElem := vm.LastPoppedStackElem()
-		return stackTopElem
+	program := parser.ParseProgram()
+
+	if len(parser.Errors()) != 0 {
+		parser.PrettyPrintErrors(out)
+		return nil
 	}
 
-	return nil
+	compiler := compiler.NewCompilerWithState(symbolTable, constants)
+	err := compiler.Compile(program)
+	if err != nil {
+		fmt.Fprintf(out, "compilation failed: %s\n", err)
+	}
+
+	bytecode := compiler.Bytecode()
+	vm := vm.NewVmWithGlobalStore(bytecode, globals)
+	err = vm.Run()
+	if err != nil {
+		fmt.Fprintf(out, "vm error: %s\n", err)
+	}
+
+	stackTopElem := vm.LastPoppedStackElem()
+	return stackTopElem
 }
