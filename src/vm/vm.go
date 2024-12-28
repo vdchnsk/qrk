@@ -9,13 +9,17 @@ import (
 	"github.com/vdchnsk/qrk/src/utils"
 )
 
-const StackSize = 2048
+const (
+	StackSize      = 2048
+	GlobalVarsSize = 65536
+)
 
 type VM struct {
 	constants    []object.Object
 	instructions code.Instructions
 
-	stack []object.Object
+	stack   []object.Object
+	globals []object.Object
 
 	// Always points to the first free slot on the stack
 	stackPointer int
@@ -37,12 +41,13 @@ func nativeToObjectBoolean(nativeValue bool) object.Object {
 
 func NewVm(bytecode *compiler.Bytecode) *VM {
 	stack := make([]object.Object, StackSize)
+	globals := make([]object.Object, GlobalVarsSize)
 
 	return &VM{
 		instructions: bytecode.Instructions,
 		constants:    bytecode.Constants,
-
 		stack:        stack,
+		globals:      globals,
 		stackPointer: 0,
 	}
 }
@@ -131,6 +136,26 @@ func (vm *VM) Run() error {
 
 		case code.OpNull:
 			err := vm.stackPush(Null)
+			if err != nil {
+				return err
+			}
+
+		case code.OpSetGlobal:
+			instruction := vm.instructions[instructionPointer+1:]
+			globalIndex := utils.ReadUint16(instruction)
+
+			instructionPointer += 2
+			value := vm.stackPop()
+			vm.globals[globalIndex] = value
+
+		case code.OpGetGlobal:
+			instruction := vm.instructions[instructionPointer+1:]
+			globalIndex := utils.ReadUint16(instruction)
+
+			instructionPointer += 2
+
+			value := vm.globals[globalIndex]
+			err := vm.stackPush(value)
 			if err != nil {
 				return err
 			}
