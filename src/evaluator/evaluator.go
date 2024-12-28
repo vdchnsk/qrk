@@ -202,11 +202,11 @@ func evalExpressions(expressions []ast.Expression, env *object.Environment) []ob
 	var result []object.Object
 
 	for _, e := range expressions {
-		evalueated := Eval(e, env)
-		if isError(evalueated) {
-			return []object.Object{evalueated}
+		evaluated := Eval(e, env)
+		if isError(evaluated) {
+			return []object.Object{evaluated}
 		}
-		result = append(result, evalueated)
+		result = append(result, evaluated)
 	}
 	return result
 }
