@@ -104,34 +104,29 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		gotoNotTruthyPosition := c.emit(code.OpGotoNotTruthy, -1)
+		gotoElseIns := c.emit(code.OpGotoNotTruthy, -1)
 
 		err = c.compileBranch(node.Consequence)
 		if err != nil {
 			return err
 		}
 
-		hasElse := node.Alternative != nil
+		skipElseIns := c.emit(code.OpGoto, -1)
 
-		if hasElse {
-			// this goto must be the last instruction of if block
-			// to skip else condition
-			afterConditionPosition := c.emit(code.OpGoto, -1)
+		elseBlockStart := len(c.instructions)
+		c.replaceOperand(gotoElseIns, elseBlockStart)
 
-			afterConsequencePosition := len(c.instructions)
-			c.replaceOperand(gotoNotTruthyPosition, afterConsequencePosition)
-
+		if node.Alternative != nil {
 			err := c.compileBranch(node.Alternative)
 			if err != nil {
 				return err
 			}
-
-			afterAlternativePosition := len(c.instructions)
-			c.replaceOperand(afterConditionPosition, afterAlternativePosition)
 		} else {
-			afterConsequencePosition := len(c.instructions)
-			c.replaceOperand(gotoNotTruthyPosition, afterConsequencePosition)
+			c.emit(code.OpNull)
 		}
+
+		elseBlockEnd := len(c.instructions)
+		c.replaceOperand(skipElseIns, elseBlockEnd)
 
 	case *ast.BlockStatement:
 		for _, statement := range node.Statements {

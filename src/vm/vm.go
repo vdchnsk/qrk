@@ -24,6 +24,8 @@ type VM struct {
 var (
 	True  = &object.Boolean{Value: true}
 	False = &object.Boolean{Value: false}
+
+	Null = &object.Null{}
 )
 
 func nativeToObjectBoolean(nativeValue bool) object.Object {
@@ -126,6 +128,12 @@ func (vm *VM) Run() error {
 			}
 
 			instructionPointer += def.OperandWidths[0]
+
+		case code.OpNull:
+			err := vm.stackPush(Null)
+			if err != nil {
+				return err
+			}
 
 		case code.OpPop:
 			vm.stackPop()
