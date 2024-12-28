@@ -456,10 +456,8 @@ func evalHashMap(node *ast.HashMapLiteral, env *object.Environment) object.Objec
 		hashableKey, ok := key.(object.Hashable)
 		if !ok {
 			return newError(
-				fmt.Sprintf(
-					"%s %s",
-					KEY_IS_NOT_HASHABLE, key.Type(),
-				),
+				"%s %s",
+				KEY_IS_NOT_HASHABLE, key.Type(),
 			)
 		}
 
