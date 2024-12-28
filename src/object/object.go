@@ -89,7 +89,7 @@ type String struct {
 }
 
 func (s *String) Type() ObjectType { return STRING_OBJ }
-func (s *String) Inspect() string  { return fmt.Sprintf(s.Value) }
+func (s *String) Inspect() string  { return s.Value }
 func (s *String) HashKey() HashKey {
 	hash := fnv.New64a()
 	hash.Write([]byte(s.Value))
