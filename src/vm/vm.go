@@ -148,6 +148,9 @@ func isTruthy(obj object.Object) bool {
 	case *object.Boolean:
 		return obj.Value
 
+	case *object.Null:
+		return false
+
 	default:
 		return true
 	}
@@ -242,6 +245,8 @@ func (vm *VM) executeBangOperation() error {
 	case True:
 		return vm.stackPush(False)
 	case False:
+		return vm.stackPush(True)
+	case Null:
 		return vm.stackPush(True)
 	default:
 		return vm.stackPush(False)
