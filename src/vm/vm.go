@@ -54,11 +54,15 @@ func (vm *VM) Run() error {
 		switch opcode {
 		case code.OpConstant:
 			constantIndex := utils.ReadUint16(vm.instructions[instructionPointer+1:])
-			readBytes := 2
-			instructionPointer += readBytes
 
-			err := vm.stackPush(vm.constants[constantIndex])
+			def, err := code.LookupDefinition(instructionByte)
+			if err != nil {
+				return err
+			}
 
+			instructionPointer += def.OperandWidths[0]
+
+			err = vm.stackPush(vm.constants[constantIndex])
 			if err != nil {
 				return err
 			}
@@ -99,12 +103,46 @@ func (vm *VM) Run() error {
 				return nil
 			}
 
+		case code.OpGoto:
+			instruction := vm.instructions[instructionPointer+1:]
+			newPosOperand := int(utils.ReadUint16(instruction))
+
+			instructionPointer = newPosOperand - 1
+
+		case code.OpGotoNotTruthy:
+			condition := vm.stackPop()
+
+			if !isTruthy(condition) {
+				instruction := vm.instructions[instructionPointer+1:]
+				newPosOperand := int(utils.ReadUint16(instruction))
+
+				instructionPointer = newPosOperand - 1
+				continue
+			}
+
+			def, err := code.LookupDefinition(instructionByte)
+			if err != nil {
+				return err
+			}
+
+			instructionPointer += def.OperandWidths[0]
+
 		case code.OpPop:
 			vm.stackPop()
 		}
 	}
 
 	return nil
+}
+
+func isTruthy(obj object.Object) bool {
+	switch obj := obj.(type) {
+	case *object.Boolean:
+		return obj.Value
+
+	default:
+		return true
+	}
 }
 
 func (vm *VM) executeBinaryOperation(op code.Opcode) error {

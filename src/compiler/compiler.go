@@ -147,7 +147,6 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 func (c *Compiler) compileBranch(branch *ast.BlockStatement) error {
 	err := c.Compile(branch)
-
 	if err != nil {
 		return nil
 	}
