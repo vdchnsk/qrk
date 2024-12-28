@@ -18,7 +18,7 @@ func parse(input string) *ast.Program {
 	return p.ParseProgram()
 }
 
-func testObject[T bool | int64](expected T, actual object.Object) error {
+func testObject[T bool | int64 | string](expected T, actual object.Object) error {
 	var result T
 
 	switch v := actual.(type) {
@@ -27,11 +27,19 @@ func testObject[T bool | int64](expected T, actual object.Object) error {
 			return fmt.Errorf("expected int64, got %T", expected)
 		}
 		result = any(v.Value).(T)
+
 	case *object.Boolean:
 		if _, ok := any(expected).(bool); !ok {
 			return fmt.Errorf("expected bool, got %T", expected)
 		}
 		result = any(v.Value).(T)
+
+	case *object.String:
+		if _, ok := any(expected).(string); !ok {
+			return fmt.Errorf("expected string, got %T", expected)
+		}
+		result = any(v.Value).(T)
+
 	default:
 		return fmt.Errorf("unsupported object type: %T", actual)
 	}
@@ -84,6 +92,8 @@ func testExpectedObject(t *testing.T, expectedObj interface{}, actualObj object.
 		err = testObject(int64(expectedObj), actualObj)
 	case bool:
 		err = testObject(expectedObj, actualObj)
+	case string:
+		err = testObject(expectedObj, actualObj)
 	case *object.Null:
 		if actualObj != Null {
 			t.Errorf("object is not Null. got=%T (%+v)", actualObj, actualObj)
@@ -112,6 +122,15 @@ func TestIntegerArithmetic(t *testing.T) {
 		{"-50 + 100 + -50", 0},
 		{"(5 + 10 * 2 + 15 / 3) * 2 + -10", 50},
 		{"-10", -10},
+	}
+
+	runVmTests(t, tests)
+}
+
+func TestStringOperations(t *testing.T) {
+	tests := []vmTestCase{
+		{`"foo"`, "foo"},
+		{`"foo" + "bar"`, "foobar"},
 	}
 
 	runVmTests(t, tests)

@@ -199,6 +199,10 @@ func (vm *VM) executeBinaryOperation(op code.Opcode) error {
 		return vm.executeBinaryIntOperation(op, left, right)
 	}
 
+	if leftType == object.STRING_OBJ && rightType == object.STRING_OBJ {
+		return vm.executeBinaryStringOperation(op, left, right)
+	}
+
 	return fmt.Errorf("unsuppoerted type for binary operation: %s %s", leftType, rightType)
 }
 
@@ -266,6 +270,24 @@ func (vm *VM) executeBinaryIntOperation(op code.Opcode, left, right object.Objec
 	}
 
 	vm.stackPush(&object.Integer{Value: result})
+
+	return nil
+}
+
+func (vm *VM) executeBinaryStringOperation(op code.Opcode, left, right object.Object) error {
+	leftValue := left.(*object.String).Value
+	rightValue := right.(*object.String).Value
+
+	var result string
+
+	switch op {
+	case code.OpAdd:
+		result = leftValue + rightValue
+	default:
+		return fmt.Errorf("unknown integer operator %d", op)
+	}
+
+	vm.stackPush(&object.String{Value: result})
 
 	return nil
 }
