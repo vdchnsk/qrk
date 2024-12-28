@@ -83,6 +83,9 @@ const (
 	OpGoto
 
 	OpNull
+
+	OpGetGlobal
+	OpSetGlobal
 )
 
 var operandDefinitions = map[Opcode]*Definition{
@@ -111,6 +114,9 @@ var operandDefinitions = map[Opcode]*Definition{
 	OpGoto:          {Name: "OpGoto", OperandWidths: []int{2}},
 
 	OpNull: {Name: "OpNull", OperandWidths: []int{}},
+
+	OpGetGlobal: {Name: "OpGetGlobal", OperandWidths: []int{2}},
+	OpSetGlobal: {Name: "OpSetGlobal", OperandWidths: []int{2}},
 }
 
 func LookupDefinition(opcode byte) (*Definition, error) {

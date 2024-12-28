@@ -347,3 +347,52 @@ func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 		}
 	}
 }
+
+func TestGlobalLetStatement(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `
+				let one = 1;
+				let two = 2;
+			`,
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpSetGlobal, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpSetGlobal, 1),
+			},
+		},
+		{
+			input: `
+				let one = 1;
+				one;
+			`,
+			expectedConstants: []interface{}{1},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpSetGlobal, 0),
+				code.MakeInstruction(code.OpGetGlobal, 0),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+				let one = 1;
+				let two = one;
+				two;
+			`,
+			expectedConstants: []interface{}{1},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpSetGlobal, 0),
+				code.MakeInstruction(code.OpGetGlobal, 0),
+				code.MakeInstruction(code.OpSetGlobal, 1),
+				code.MakeInstruction(code.OpGetGlobal, 1),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
+}
