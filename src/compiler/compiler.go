@@ -111,6 +111,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
+		// must be the last instruction in the `if`-block to jump over `else`
 		skipElseIns := c.emit(code.OpGoto, -1)
 
 		elseBlockStart := len(c.instructions)
