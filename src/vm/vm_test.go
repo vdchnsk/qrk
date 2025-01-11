@@ -90,13 +90,37 @@ func testExpectedObject(t *testing.T, expectedObj interface{}, actualObj object.
 	switch expectedObj := expectedObj.(type) {
 	case int:
 		err = testObject(int64(expectedObj), actualObj)
+
 	case bool:
 		err = testObject(expectedObj, actualObj)
+
 	case string:
 		err = testObject(expectedObj, actualObj)
+
+	case []int:
+		actualArray, ok := actualObj.(*object.Array)
+		if !ok {
+			t.Errorf("object is not Array. got=%T (%+v)", actualObj, actualObj)
+			return
+		}
+
+		if len(actualArray.Elements) != len(expectedObj) {
+			t.Errorf("wrong number of elements. want=%d, got=%d", len(expectedObj), len(actualArray.Elements))
+			return
+		}
+
+		for i, expectedElem := range expectedObj {
+			err := testObject(int64(expectedElem), actualArray.Elements[i])
+			if err != nil {
+				t.Errorf("array element %d - %s", i, err)
+				return
+			}
+		}
+
 	case *object.Null:
 		if actualObj != Null {
 			t.Errorf("object is not Null. got=%T (%+v)", actualObj, actualObj)
+			return
 		}
 	}
 
@@ -184,6 +208,17 @@ func TestGlobalLetStatements(t *testing.T) {
 		{"let one = 1; one", 1},
 		{"let one = 1; let two = 2; one + two", 3},
 		{"let one = 1; let two = one + one; one + two", 3},
+	}
+
+	runVmTests(t, tests)
+}
+
+func TestArrayLiterals(t *testing.T) {
+	tests := []vmTestCase{
+		{"[]", []int{}},
+		{"[1, 2, 3]", []int{1, 2, 3}},
+		{"[1, -2, 3]", []int{1, -2, 3}},
+		{"[1+1, 2*2, 3*3-3]", []int{2, 4, 6}},
 	}
 
 	runVmTests(t, tests)

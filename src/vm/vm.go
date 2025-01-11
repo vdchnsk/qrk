@@ -167,6 +167,29 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case code.OpArray:
+			instruction := vm.instructions[instructionPointer+1:]
+			arraySize := int(utils.ReadUint16(instruction))
+
+			def, err := code.LookupDefinition(instructionByte)
+			if err != nil {
+				return err
+			}
+
+			instructionPointer += def.OperandWidths[0]
+
+			start := vm.stackPointer - arraySize
+			end := vm.stackPointer
+
+			// override the array elements on stack with the array object itself
+			array := vm.buildArray(start, end)
+			vm.stackPointer -= arraySize
+
+			err = vm.stackPush(array)
+			if err != nil {
+				return err
+			}
+
 		case code.OpPop:
 			vm.stackPop()
 		}
@@ -330,7 +353,9 @@ func (vm *VM) StackTop() object.Object {
 	return topStackElem
 }
 
-// Use only for tests
+// ========== !!! ===========
+// === Use only for tests ===
+// ========== !!! ===========
 func (vm *VM) LastPoppedStackElem() object.Object {
 	// since, when popping we only decrement the pointer and not actually overriding top of the stack with nil
 	// we can assume that after performing a pop() operation stack pointer will be pointing to the element that was just popped
@@ -357,4 +382,15 @@ func (vm *VM) stackPop() object.Object {
 	vm.stackPointer--
 
 	return topStackElem
+}
+
+func (vm *VM) buildArray(startStackPointer, endStackPointer int) object.Object {
+	size := endStackPointer - startStackPointer
+	elements := make([]object.Object, size)
+
+	for i := startStackPointer; i < endStackPointer; i++ {
+		elements[i-startStackPointer] = vm.stack[i]
+	}
+
+	return &object.Array{Elements: elements}
 }
