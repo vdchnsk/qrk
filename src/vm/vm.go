@@ -192,7 +192,7 @@ func (vm *VM) Run() error {
 
 		case code.OpHashMap:
 			instruction := vm.instructions[instructionPointer+1:]
-			arraySize := int(utils.ReadUint16(instruction))
+			hashmapSize := int(utils.ReadUint16(instruction))
 
 			def, err := code.LookupDefinition(instructionByte)
 			if err != nil {
@@ -201,7 +201,7 @@ func (vm *VM) Run() error {
 
 			instructionPointer += def.OperandWidths[0]
 
-			start := vm.stackPointer - arraySize
+			start := vm.stackPointer - hashmapSize
 			end := vm.stackPointer
 
 			// override the hashmap elements on stack with the hashmap object itself
@@ -209,7 +209,7 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
-			vm.stackPointer -= arraySize
+			vm.stackPointer -= hashmapSize
 
 			err = vm.stackPush(hashmap)
 			if err != nil {
