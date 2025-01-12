@@ -190,6 +190,32 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case code.OpHashMap:
+			instruction := vm.instructions[instructionPointer+1:]
+			arraySize := int(utils.ReadUint16(instruction))
+
+			def, err := code.LookupDefinition(instructionByte)
+			if err != nil {
+				return err
+			}
+
+			instructionPointer += def.OperandWidths[0]
+
+			start := vm.stackPointer - arraySize
+			end := vm.stackPointer
+
+			// override the hashmap elements on stack with the hashmap object itself
+			hashmap, err := vm.buildHashmap(start, end)
+			if err != nil {
+				return err
+			}
+			vm.stackPointer -= arraySize
+
+			err = vm.stackPush(hashmap)
+			if err != nil {
+				return err
+			}
+
 		case code.OpPop:
 			vm.stackPop()
 		}
@@ -393,4 +419,24 @@ func (vm *VM) buildArray(startStackPointer, endStackPointer int) object.Object {
 	}
 
 	return &object.Array{Elements: elements}
+}
+
+func (vm *VM) buildHashmap(startStackPointer, endStackPointer int) (object.Object, error) {
+	hashmap := &object.HashMap{
+		Pairs: make(map[object.HashKey]object.HashPair),
+	}
+
+	for i := startStackPointer; i < endStackPointer; i += 2 {
+		key := vm.stack[i]
+		hashableKey, ok := key.(object.Hashable)
+		if !ok {
+			return nil, fmt.Errorf("unusable as hashmap key: %s", key.Type())
+		}
+
+		value := vm.stack[i+1]
+
+		hashmap.Pairs[hashableKey.HashKey()] = object.HashPair{Key: key, Value: value}
+	}
+
+	return hashmap, nil
 }

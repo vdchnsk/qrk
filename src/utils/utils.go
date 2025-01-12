@@ -2,6 +2,8 @@ package utils
 
 import (
 	"encoding/binary"
+	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -28,4 +30,10 @@ func ReadUint16(bytes []byte) uint16 {
 
 func ReadUint32(bytes []byte) uint32 {
 	return binary.BigEndian.Uint32(bytes)
+}
+
+func SortByString[T fmt.Stringer](list []T) {
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].String() < list[j].String()
+	})
 }

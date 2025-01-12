@@ -32,12 +32,12 @@ func testInstructions(expected []code.Instructions, actual code.Instructions) er
 	flattenedExpected := flattenInstructions(expected)
 
 	if len(flattenedExpected) != len(actual) {
-		return fmt.Errorf("wrong instructions length.\nexpected=%q\ngot=%q", flattenedExpected.String(), actual.String())
+		return fmt.Errorf("wrong instructions length.\nexpected=\n%q\ngot=\n%q", flattenedExpected.String(), actual.String())
 	}
 
 	for index, instruction := range flattenedExpected {
 		if actual[index] != instruction {
-			return fmt.Errorf("wrong instruction at %d.\nexpected=%q\ngot=%q", index, flattenedExpected.String(), actual.String())
+			return fmt.Errorf("wrong instruction at %d.\nexpected=\n%q\ngot=\n%q", index, flattenedExpected.String(), actual.String())
 		}
 	}
 
@@ -342,7 +342,7 @@ func TestConditionals(t *testing.T) {
 func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 	t.Helper()
 
-	for _, tt := range tests {
+	for i, tt := range tests {
 		program := parse(tt.input)
 
 		compiler := NewCompiler()
@@ -355,12 +355,12 @@ func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 
 		err = testInstructions(tt.expectedInstructions, bytecode.Instructions)
 		if err != nil {
-			t.Fatalf("testInstructions failed: %s", err)
+			t.Fatalf("[%d] testInstructions failed: %s", i+1, err)
 		}
 
 		err = testConstants(tt.expectedConstants, bytecode.Constants)
 		if err != nil {
-			t.Fatalf("testConstants failed: %s", err)
+			t.Fatalf("[%d] testConstants failed: %s", i+1, err)
 		}
 	}
 }
@@ -479,6 +479,56 @@ func TestArrayExpression(t *testing.T) {
 				code.MakeInstruction(code.OpSub),
 
 				code.MakeInstruction(code.OpArray, 3),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
+}
+
+func TestHashMapExpression(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             `{}`,
+			expectedConstants: []interface{}{},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpHashMap, 0),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             `{1: 2, 2: 3, 3: 4}`,
+			expectedConstants: []interface{}{1, 2, 2, 3, 3, 4},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpConstant, 2),
+				code.MakeInstruction(code.OpConstant, 3),
+				code.MakeInstruction(code.OpConstant, 4),
+				code.MakeInstruction(code.OpConstant, 5),
+				code.MakeInstruction(code.OpHashMap, 6),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             `{1: 2, 2: 3+3, 3: 4-1}`,
+			expectedConstants: []interface{}{1, 2, 2, 3, 3, 3, 4, 1},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+
+				code.MakeInstruction(code.OpConstant, 2),
+				code.MakeInstruction(code.OpConstant, 3),
+				code.MakeInstruction(code.OpConstant, 4),
+				code.MakeInstruction(code.OpAdd),
+
+				code.MakeInstruction(code.OpConstant, 5),
+				code.MakeInstruction(code.OpConstant, 6),
+				code.MakeInstruction(code.OpConstant, 7),
+				code.MakeInstruction(code.OpSub),
+
+				code.MakeInstruction(code.OpHashMap, 6),
 				code.MakeInstruction(code.OpPop),
 			},
 		},

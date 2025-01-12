@@ -7,6 +7,7 @@ import (
 	"github.com/vdchnsk/qrk/src/code"
 	"github.com/vdchnsk/qrk/src/object"
 	"github.com/vdchnsk/qrk/src/token"
+	"github.com/vdchnsk/qrk/src/utils"
 )
 
 type Compiler struct {
@@ -179,6 +180,26 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 		c.emit(code.OpArray, len(node.Elements))
+
+	case *ast.HashMapLiteral:
+		keys := make([]ast.Expression, 0, len(node.Pairs))
+		for key := range node.Pairs {
+			keys = append(keys, key)
+		}
+		utils.SortByString(keys)
+
+		for _, key := range keys {
+			if err := c.Compile(key); err != nil {
+				return err
+			}
+
+			value := node.Pairs[key]
+			if err := c.Compile(value); err != nil {
+				return err
+			}
+		}
+
+		c.emit(code.OpHashMap, len(node.Pairs)*2)
 	}
 
 	return nil
