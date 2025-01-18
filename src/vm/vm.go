@@ -216,6 +216,12 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case code.OpIndex:
+			err := vm.executeIndexExpression()
+			if err != nil {
+				return nil
+			}
+
 		case code.OpPop:
 			vm.stackPop()
 		}
@@ -367,6 +373,59 @@ func (vm *VM) executeMinusOperation() error {
 	oppositeInt := &object.Integer{Value: -currentValue}
 
 	return vm.stackPush(oppositeInt)
+}
+
+func (vm *VM) executeIndexExpression() error {
+	index := vm.stackPop()
+	left := vm.stackPop()
+
+	switch {
+	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
+		array := left.(*object.Array)
+		idx := index.(*object.Integer)
+
+		obj, err := vm.executeArrayIndex(array, idx)
+		if err != nil {
+			return err
+		}
+
+		return vm.stackPush(obj)
+
+	case left.Type() == object.HASH_MAP_OBJ:
+		hashMap := left.(*object.HashMap)
+		key, ok := index.(object.Hashable)
+		if !ok {
+			return fmt.Errorf("unusable as hashmap key: %s", index.Type())
+		}
+
+		obj, err := vm.executeHashmapIndex(hashMap, key)
+		if err != nil {
+			return err
+		}
+		return vm.stackPush(obj)
+
+	default:
+		return fmt.Errorf("index operator not supported: %s", left.Type())
+	}
+}
+
+func (vm *VM) executeArrayIndex(array *object.Array, index *object.Integer) (object.Object, error) {
+	max := int64(len(array.Elements) - 1)
+
+	if index.Value < 0 || index.Value > max {
+		return Null, nil
+	}
+
+	return array.Elements[index.Value], nil
+}
+
+func (vm *VM) executeHashmapIndex(hashMap *object.HashMap, key object.Hashable) (object.Object, error) {
+	pair, ok := hashMap.Pairs[key.HashKey()]
+	if !ok {
+		return Null, nil
+	}
+
+	return pair.Value, nil
 }
 
 func (vm *VM) StackTop() object.Object {

@@ -536,3 +536,50 @@ func TestHashMapExpression(t *testing.T) {
 
 	runCompilerTests(t, tests)
 }
+
+func TestIndexExpression(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             `[1][0]`,
+			expectedConstants: []interface{}{1, 0},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpArray, 1),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpIndex),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             `[1, 2, 3][1 + 1]`,
+			expectedConstants: []interface{}{1, 2, 3, 1, 1},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpConstant, 2),
+				code.MakeInstruction(code.OpArray, 3),
+
+				code.MakeInstruction(code.OpConstant, 3),
+				code.MakeInstruction(code.OpConstant, 4),
+				code.MakeInstruction(code.OpAdd),
+				code.MakeInstruction(code.OpIndex),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             `{1: 2}[1]`,
+			expectedConstants: []interface{}{1, 2, 1},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpHashMap, 2),
+
+				code.MakeInstruction(code.OpConstant, 2),
+				code.MakeInstruction(code.OpIndex),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
+}

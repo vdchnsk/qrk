@@ -89,6 +89,8 @@ const (
 
 	OpArray
 	OpHashMap
+
+	OpIndex
 )
 
 var operandDefinitions = map[Opcode]*Definition{
@@ -123,6 +125,8 @@ var operandDefinitions = map[Opcode]*Definition{
 
 	OpArray:   {Name: "OpArray", OperandWidths: []int{2}},
 	OpHashMap: {Name: "OpHashMap", OperandWidths: []int{2}},
+
+	OpIndex: {Name: "OpIndex", OperandWidths: []int{}},
 }
 
 func LookupDefinition(opcode byte) (*Definition, error) {
