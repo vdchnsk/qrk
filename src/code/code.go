@@ -91,6 +91,11 @@ const (
 	OpHashMap
 
 	OpIndex
+
+	OpCall
+
+	OpReturnValue
+	OpReturn
 )
 
 var operandDefinitions = map[Opcode]*Definition{
@@ -127,6 +132,11 @@ var operandDefinitions = map[Opcode]*Definition{
 	OpHashMap: {Name: "OpHashMap", OperandWidths: []int{2}},
 
 	OpIndex: {Name: "OpIndex", OperandWidths: []int{}},
+
+	OpCall: {Name: "OpCall", OperandWidths: []int{}},
+
+	OpReturnValue: {Name: "OpReturnValue", OperandWidths: []int{}},
+	OpReturn:      {Name: "OpReturn", OperandWidths: []int{}},
 }
 
 func LookupDefinition(opcode byte) (*Definition, error) {
