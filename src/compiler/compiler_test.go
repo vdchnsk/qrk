@@ -624,7 +624,24 @@ func TestFunctions(t *testing.T) {
 					code.MakeInstruction(code.OpConstant, 0),
 					code.MakeInstruction(code.OpConstant, 1),
 					code.MakeInstruction(code.OpAdd),
+					code.MakeInstruction(code.OpReturn),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 2),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input: `fn() { 5; 10 }`,
+			expectedConstants: []interface{}{
+				5,
+				10,
+				[]code.Instructions{
+					code.MakeInstruction(code.OpConstant, 0),
 					code.MakeInstruction(code.OpPop),
+					code.MakeInstruction(code.OpConstant, 1),
+					code.MakeInstruction(code.OpReturnValue),
 				},
 			},
 			expectedInstructions: []code.Instructions{

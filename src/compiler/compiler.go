@@ -59,6 +59,21 @@ func (c *Compiler) curInstructions() code.Instructions {
 	return c.curScope().instructions
 }
 
+func (c *Compiler) lastInstructionIs(op code.Opcode) bool {
+	if len(c.curInstructions()) == 0 {
+		return false
+	}
+
+	return c.curScope().lastInstruction.Opcode == op
+}
+
+func (c *Compiler) replaceLastPopWithReturn() {
+	lastPos := c.curScope().lastInstruction.Position
+	c.replaceInstruction(lastPos, code.MakeInstruction(code.OpReturnValue))
+
+	c.curScope().lastInstruction.Opcode = code.OpReturnValue
+}
+
 func (c *Compiler) enterScope() {
 	scope := CompilationScope{
 		instructions:    code.Instructions{},
@@ -157,15 +172,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 	case *ast.IfExpression:
-		err := c.Compile(node.Condition)
-		if err != nil {
+		if err := c.Compile(node.Condition); err != nil {
 			return err
 		}
 
 		gotoElseIns := c.emit(code.OpGotoNotTruthy, -1)
 
-		err = c.compileBranch(node.Consequence)
-		if err != nil {
+		if err := c.compileBranch(node.Consequence); err != nil {
 			return err
 		}
 
@@ -176,8 +189,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.replaceOperand(gotoElseIns, elseBlockStart)
 
 		if node.Alternative != nil {
-			err := c.compileBranch(node.Alternative)
-			if err != nil {
+			if err := c.compileBranch(node.Alternative); err != nil {
 				return err
 			}
 		} else {
@@ -189,15 +201,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 	case *ast.BlockStatement:
 		for _, statement := range node.Statements {
-			err := c.Compile(statement)
-			if err != nil {
+			if err := c.Compile(statement); err != nil {
 				return err
 			}
 		}
 
 	case *ast.LetStatement:
-		err := c.Compile(node.Value)
-		if err != nil {
+		if err := c.Compile(node.Value); err != nil {
 			return err
 		}
 
@@ -214,8 +224,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 	case *ast.ArrayLiteral:
 		for _, element := range node.Elements {
-			err := c.Compile(element)
-			if err != nil {
+			if err := c.Compile(element); err != nil {
 				return err
 			}
 		}
@@ -260,6 +269,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
+		if c.lastInstructionIs(code.OpPop) {
+			c.replaceLastPopWithReturn()
+		}
+		if !c.lastInstructionIs(code.OpReturnValue) {
+			c.emit(code.OpReturn)
+		}
+
 		instructions := c.leaveScope()
 
 		compiledFunc := &object.CompiledFunction{
@@ -280,12 +296,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 }
 
 func (c *Compiler) compileBranch(branch *ast.BlockStatement) error {
-	err := c.Compile(branch)
-	if err != nil {
+	if err := c.Compile(branch); err != nil {
 		return nil
 	}
 
-	if c.isLastInstructionPop() {
+	if c.lastInstructionIs(code.OpPop) {
 		c.removeLastInstruction()
 	}
 
@@ -380,10 +395,6 @@ func (c *Compiler) setLastInstruction(opcode code.Opcode, position int) {
 
 	c.curScope().prevInstruction = previous
 	c.curScope().lastInstruction = last
-}
-
-func (c *Compiler) isLastInstructionPop() bool {
-	return c.curScope().lastInstruction.Opcode == code.OpPop
 }
 
 func (c *Compiler) addInstruction(instruction []byte) int {
