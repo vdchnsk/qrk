@@ -79,7 +79,7 @@ const (
 
 	OpPop
 
-	OpGotoNotTruthy // goto only if value of top of the stack is not truthy
+	OpGotoNotTruthy // goto only if value on top of the stack is not truthy
 	OpGoto
 
 	OpNull

@@ -68,7 +68,7 @@ func Compile(input string, out io.Writer, symbolTable *compiler.SymbolTable, con
 		return nil
 	}
 
-	compiler := compiler.NewCompilerWithState(symbolTable, constants)
+	compiler := compiler.NewWithState(symbolTable, constants)
 	err := compiler.Compile(program)
 	if err != nil {
 		fmt.Fprintf(out, "compilation failed: %s\n", err)
