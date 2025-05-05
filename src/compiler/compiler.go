@@ -19,7 +19,9 @@ type Compiler struct {
 	scopeIndex int
 }
 
-// Its what we pass to VM
+// Bytecode is the result of the compilation phase.
+// It contains executable instructions and a constant pool.
+// This is passed directly to the VM for execution.
 type Bytecode struct {
 	Instructions code.Instructions
 	Constants    []object.Object
@@ -272,6 +274,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if c.lastInstructionIs(code.OpPop) {
 			c.replaceLastPopWithReturn()
 		}
+
 		if !c.lastInstructionIs(code.OpReturnValue) {
 			c.emit(code.OpReturn)
 		}
@@ -319,8 +322,10 @@ func (c *Compiler) compilePrefixOperator(operator string) error {
 	switch operator {
 	case token.BANG:
 		c.emit(code.OpBang)
+
 	case token.MINUS:
 		c.emit(code.OpMinus)
+
 	default:
 		return fmt.Errorf("unknown prefix operator %s", operator)
 	}
@@ -331,22 +336,31 @@ func (c *Compiler) compileInfixOperator(operator string) error {
 	switch operator {
 	case token.PLUS:
 		c.emit(code.OpAdd)
+
 	case token.MINUS:
 		c.emit(code.OpSub)
+
 	case token.ASTERISK:
 		c.emit(code.OpMul)
+
 	case token.SLASH:
 		c.emit(code.OpDiv)
+
 	case token.EQ:
 		c.emit(code.OpEqual)
+
 	case token.NOT_EQ:
 		c.emit(code.OpNotEqual)
+
 	case token.GT:
 		c.emit(code.OpGreaterThan)
+
 	case token.AND:
 		c.emit(code.OpAnd)
+
 	case token.OR:
 		c.emit(code.OpOr)
+
 	default:
 		return fmt.Errorf("unknown infix operator %s", operator)
 	}
@@ -375,7 +389,7 @@ func (c *Compiler) removeLastInstruction() {
 }
 
 func (c *Compiler) replaceInstruction(position int, newInstruction []byte) {
-	for i := 0; i < len(newInstruction); i++ {
+	for i := range len(newInstruction) {
 		c.curInstructions()[position+i] = newInstruction[i]
 	}
 }
