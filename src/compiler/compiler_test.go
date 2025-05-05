@@ -626,43 +626,49 @@ func TestCompilerScopes(t *testing.T) {
 		t.Fatalf("initial scope index is not 0. got=%d", compiler.scopeIndex)
 	}
 
-	compiler.emit(code.OpMul)
+	t.Run("instructions in main scope", func(t *testing.T) {
+		compiler.emit(code.OpMul)
 
-	compiler.enterScope()
-	if compiler.scopeIndex != 1 {
-		t.Fatalf("scope index is not 1 after entering scope. got=%d", compiler.scopeIndex)
-	}
+		compiler.enterScope()
+		if compiler.scopeIndex != 1 {
+			t.Fatalf("scope index is not 1 after entering scope. got=%d", compiler.scopeIndex)
+		}
+	})
 
-	compiler.emit(code.OpSub)
+	t.Run("instructions in inner scope", func(t *testing.T) {
+		compiler.emit(code.OpSub)
 
-	if len(compiler.scopes[compiler.scopeIndex].instructions) != 1 {
-		t.Fatalf("wrong number of instructions in scope. got=%d", len(compiler.scopes[compiler.scopeIndex].instructions))
-	}
+		if len(compiler.scopes[compiler.scopeIndex].instructions) != 1 {
+			t.Fatalf("wrong number of instructions in scope. got=%d", len(compiler.scopes[compiler.scopeIndex].instructions))
+		}
 
-	last := compiler.scopes[compiler.scopeIndex].lastInstruction
-	if last.Opcode != code.OpSub {
-		t.Fatalf("wrong last instruction in scope. got=%d", last.Opcode)
-	}
+		last := compiler.scopes[compiler.scopeIndex].lastInstruction
+		if last.Opcode != code.OpSub {
+			t.Fatalf("wrong last instruction in scope. got=%d", last.Opcode)
+		}
+	})
 
-	compiler.leaveScope()
-	if compiler.scopeIndex != 0 {
-		t.Fatalf("scope index is not 0 after leaving scope. got=%d", compiler.scopeIndex)
-	}
+	t.Run("instructions in main scope after inner scope", func(t *testing.T) {
+		compiler.leaveScope()
+		if compiler.scopeIndex != 0 {
+			t.Fatalf("scope index is not 0 after leaving scope. got=%d", compiler.scopeIndex)
+		}
 
-	compiler.emit(code.OpAdd)
+		compiler.emit(code.OpAdd)
 
-	if len(compiler.scopes[compiler.scopeIndex].instructions) != 2 {
-		t.Fatalf("wrong number of instructions in scope. got=%d", len(compiler.scopes[compiler.scopeIndex].instructions))
-	}
+		if len(compiler.scopes[compiler.scopeIndex].instructions) != 2 {
+			t.Fatalf("wrong number of instructions in scope. got=%d", len(compiler.scopes[compiler.scopeIndex].instructions))
+		}
 
-	last = compiler.scopes[compiler.scopeIndex].lastInstruction
-	if last.Opcode != code.OpAdd {
-		t.Fatalf("wrong last instruction in scope. got=%d", last.Opcode)
-	}
+		last := compiler.scopes[compiler.scopeIndex].lastInstruction
+		if last.Opcode != code.OpAdd {
+			t.Fatalf("wrong last instruction in scope. got=%d", last.Opcode)
+		}
 
-	prev := compiler.scopes[compiler.scopeIndex].prevInstruction
+		prev := compiler.scopes[compiler.scopeIndex].prevInstruction
 
-	if prev.Opcode != code.OpMul {
-		t.Fatalf("wrong previous instruction in scope. got=%d", prev.Opcode)
-	}
+		if prev.Opcode != code.OpMul {
+			t.Fatalf("wrong previous instruction in scope. got=%d", prev.Opcode)
+		}
+	})
 }
