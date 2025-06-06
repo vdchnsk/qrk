@@ -72,7 +72,7 @@ func (env *Environment) Put(ident string, val Object) Object {
 	return val
 }
 
-func (err *Error) Type() ObjectType { return RETURN_OBJ }
+func (err *Error) Type() ObjectType { return ERROR_OBJ }
 func (err *Error) Inspect() string  { return "ERROR:" + err.Message }
 
 type Integer struct {
