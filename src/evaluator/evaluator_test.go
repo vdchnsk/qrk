@@ -156,7 +156,7 @@ func TestBangOperator(t *testing.T) {
 	}
 }
 
-func TestMinusperator(t *testing.T) {
+func TestMinusOperator(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected int64
