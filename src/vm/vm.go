@@ -258,7 +258,7 @@ func (vm *VM) executeBinaryOperation(op code.Opcode) error {
 		return vm.executeBinaryStringOperation(op, left, right)
 	}
 
-	return fmt.Errorf("unsuppoerted type for binary operation: %s %s", leftType, rightType)
+	return fmt.Errorf("unsupported type for binary operation: %s %s", leftType, rightType)
 }
 
 func (vm *VM) executeComparisonOperation(op code.Opcode) error {
@@ -283,7 +283,7 @@ func (vm *VM) executeComparisonOperation(op code.Opcode) error {
 	case code.OpOr:
 		return vm.stackPush(nativeToObjectBoolean(left.(*object.Boolean).Value || right.(*object.Boolean).Value))
 	default:
-		return fmt.Errorf("unsuppoerted type for binary operation: %s %s", leftType, rightType)
+		return fmt.Errorf("unsupported type for binary operation: %s %s", leftType, rightType)
 	}
 
 }

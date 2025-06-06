@@ -300,7 +300,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 func (c *Compiler) compileBranch(branch *ast.BlockStatement) error {
 	if err := c.Compile(branch); err != nil {
-		return nil
+		return err
 	}
 
 	if c.lastInstructionIs(code.OpPop) {
