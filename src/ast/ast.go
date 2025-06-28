@@ -180,9 +180,9 @@ func (b *Boolean) expressionNode()      {}
 func (b *Boolean) String() string       { return b.Token.Literal }
 
 type PrefixExpression struct {
-	Token    token.Token // The prfix token e.g "-"
-	Operator string
-	Right    Expression
+       Token    token.Token // The prefix token e.g "-"
+       Operator string
+       Right    Expression
 }
 
 func (pe *PrefixExpression) TokenLiteral() string { return pe.Token.Literal }
