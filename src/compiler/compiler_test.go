@@ -44,7 +44,7 @@ func testInstructions(expected []code.Instructions, actual code.Instructions) er
 	return nil
 }
 
-func testConstants(expected []interface{}, actual []object.Object) error {
+func testConstants(expected []any, actual []object.Object) error {
 	if len(expected) != len(actual) {
 		return fmt.Errorf("wrong number of constants. got=%d, expected=%d", len(actual), len(expected))
 	}
@@ -717,4 +717,44 @@ func TestCompilerScopes(t *testing.T) {
 			t.Fatalf("wrong previous instruction in scope. got=%d", prev.Opcode)
 		}
 	})
+}
+
+func TestFunctionCalls(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input: `fn() { 24 }();`,
+			expectedConstants: []any{
+				24,
+				[]code.Instructions{
+					code.MakeInstruction(code.OpConstant, 0),
+					code.MakeInstruction(code.OpReturnValue),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 1), // the compiled function
+				code.MakeInstruction(code.OpCall),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+				let noargs = fn() { 1 };
+				noargs();
+			`,
+			expectedConstants: []any{
+				1,
+				[]code.Instructions{
+					code.MakeInstruction(code.OpConstant, 0),
+					code.MakeInstruction(code.OpReturnValue),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 1), // the compiled function
+				code.MakeInstruction(code.OpCall, 0),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
 }

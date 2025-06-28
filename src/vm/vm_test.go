@@ -282,3 +282,14 @@ func TestIndexExpression(t *testing.T) {
 
 	runVmTests(t, tests)
 }
+
+func TestCallingFunctionWithoutArguments(t *testing.T) {
+	tests := []vmTestCase{
+		{"fn() { 5 }()", 5},
+		{"let f = fn() { 5 }; f()", 5},
+		{"let f = fn() { return 5 }; f()", 5},
+		{"let f = fn() { return 10 + 5; }; f()", 15},
+	}
+
+	runVmTests(t, tests)
+}

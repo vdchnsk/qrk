@@ -222,6 +222,14 @@ func (vm *VM) Run() error {
 				return nil
 			}
 
+		case code.OpCall:
+			fn, ok := vm.stackPop().(*object.CompiledFunction)
+			if !ok {
+				return fmt.Errorf("calling a non-function object: %s", fn.Type())
+			}
+
+			return nil
+
 		case code.OpPop:
 			vm.stackPop()
 		}

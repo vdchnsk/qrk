@@ -119,10 +119,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 	case *ast.ExpressionStatement:
-		err := c.Compile(node.Value)
-		if err != nil {
+		if err := c.Compile(node.Value); err != nil {
 			return err
 		}
+
 		c.emit(code.OpPop) // clean up expression statement from the stack, since it cannot be reused by anything else in future
 
 	case *ast.PrefixExpression:
@@ -293,6 +293,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 		c.emit(code.OpReturnValue)
+
+	case *ast.CallExpression:
+		if err := c.Compile(node.Function); err != nil {
+			return err
+		}
+
+		c.emit(code.OpCall)
 	}
 
 	return nil

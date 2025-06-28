@@ -150,10 +150,12 @@ func LookupDefinition(opcode byte) (*Definition, error) {
 func MakeInstruction(op Opcode, operands ...int) []byte {
 	operandDefinition, ok := operandDefinitions[op]
 	if !ok {
+		fmt.Printf("ERROR: opcode %d is not defined\n", op)
 		return []byte{}
 	}
 
 	if len(operands) != len(operandDefinition.OperandWidths) {
+		fmt.Printf("ERROR: operand count %d does not match definition %d for opcode %d\n", len(operands), len(operandDefinition.OperandWidths), op)
 		return []byte{}
 	}
 
