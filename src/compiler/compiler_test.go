@@ -750,6 +750,8 @@ func TestFunctionCalls(t *testing.T) {
 			},
 			expectedInstructions: []code.Instructions{
 				code.MakeInstruction(code.OpConstant, 1), // the compiled function
+				code.MakeInstruction(code.OpSetGlobal, 0),
+				code.MakeInstruction(code.OpGetGlobal, 0),
 				code.MakeInstruction(code.OpCall, 0),
 				code.MakeInstruction(code.OpPop),
 			},
