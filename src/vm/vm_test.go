@@ -285,7 +285,7 @@ func TestIndexExpression(t *testing.T) {
 
 func TestCallingFunctionWithoutArguments(t *testing.T) {
 	tests := []vmTestCase{
-		{"fn() { 5 }()", 5},
+		{"fn() { 5 } ()", 5},
 		{"let f = fn() { 5 }; f()", 5},
 		{"let f = fn() { return 5 }; f()", 5},
 		{"let f = fn() { return 10 + 5; }; f()", 15},
@@ -318,6 +318,19 @@ func TestCallingFunctionWithoutArguments(t *testing.T) {
 		},
 		{` let empty = fn() { }; empty(); `, Null},
 	}
+
+	runVmTests(t, tests)
+}
+
+func TestFirstClassFuncs(t *testing.T) {
+	tests := []vmTestCase{{
+		`
+			let returns_one = fn() { 1; };
+			let returns_one_returner = fn() { returns_one; };
+
+			returns_one_returner()();
+		`, 1,
+	}}
 
 	runVmTests(t, tests)
 }
