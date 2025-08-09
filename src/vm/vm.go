@@ -81,11 +81,6 @@ func (vm *VM) Run() error {
 
 		switch opcode {
 		case code.OpConstant:
-			fmt.Println("ip", instructionPointer)
-			fmt.Println("ins", instructions)
-			fmt.Println(">>", utils.ReadUint16(instructions[instructionPointer:]))
-			fmt.Println(">>>", instructions[instructionPointer:])
-
 			constantIndex := utils.ReadUint16(instructions[instructionPointer+1:])
 
 			def, err := code.LookupDefinition(instructionByte)
