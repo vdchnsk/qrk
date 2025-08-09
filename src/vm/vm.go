@@ -81,7 +81,8 @@ func (vm *VM) Run() error {
 
 		switch opcode {
 		case code.OpConstant:
-			constantIndex := utils.ReadUint16(instructions[instructionPointer+1:])
+			argIp := instructionPointer + 1
+			constantIndex := utils.ReadUint16(instructions[argIp:])
 
 			def, err := code.LookupDefinition(instructionByte)
 			if err != nil {
@@ -132,8 +133,8 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpGoto:
-			instruction := instructions[instructionPointer+1:]
-			newPosOperand := int(utils.ReadUint16(instruction))
+			argIp := instructionPointer + 1
+			newPosOperand := int(utils.ReadUint16(instructions[argIp:]))
 
 			vm.curStackFrame().ip = newPosOperand - 1
 
@@ -141,8 +142,8 @@ func (vm *VM) Run() error {
 			condition := vm.stackPop()
 
 			if !isTruthy(condition) {
-				instruction := instructions[instructionPointer+1:]
-				newPosOperand := int(utils.ReadUint16(instruction))
+				argIp := instructionPointer + 1
+				newPosOperand := int(utils.ReadUint16(instructions[argIp:]))
 
 				vm.curStackFrame().ip = newPosOperand - 1
 				continue
@@ -162,8 +163,8 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpSetGlobal:
-			instruction := instructions[instructionPointer+1:]
-			globalIndex := utils.ReadUint16(instruction)
+			argIp := instructionPointer + 1
+			globalIndex := utils.ReadUint16(instructions[argIp:])
 
 			def, err := code.LookupDefinition(instructionByte)
 			if err != nil {
@@ -175,8 +176,8 @@ func (vm *VM) Run() error {
 			vm.globals[globalIndex] = value
 
 		case code.OpGetGlobal:
-			instruction := instructions[instructionPointer+1:]
-			globalIndex := utils.ReadUint16(instruction)
+			argIp := instructionPointer + 1
+			globalIndex := utils.ReadUint16(instructions[argIp:])
 
 			def, err := code.LookupDefinition(instructionByte)
 			if err != nil {
@@ -191,8 +192,8 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpArray:
-			instruction := instructions[instructionPointer+1:]
-			arraySize := int(utils.ReadUint16(instruction))
+			argIp := instructionPointer + 1
+			arraySize := int(utils.ReadUint16(instructions[argIp:]))
 
 			def, err := code.LookupDefinition(instructionByte)
 			if err != nil {
@@ -214,8 +215,8 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpHashMap:
-			instruction := instructions[instructionPointer+1:]
-			hashmapSize := int(utils.ReadUint16(instruction))
+			argIp := instructionPointer + 1
+			hashmapSize := int(utils.ReadUint16(instructions[argIp:]))
 
 			def, err := code.LookupDefinition(instructionByte)
 			if err != nil {
