@@ -752,7 +752,7 @@ func TestFunctionCalls(t *testing.T) {
 				code.MakeInstruction(code.OpConstant, 1), // the compiled function
 				code.MakeInstruction(code.OpSetGlobal, 0),
 				code.MakeInstruction(code.OpGetGlobal, 0),
-				code.MakeInstruction(code.OpCall, 0),
+				code.MakeInstruction(code.OpCall),
 				code.MakeInstruction(code.OpPop),
 			},
 		},
