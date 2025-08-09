@@ -69,7 +69,7 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 		}
 
 		bytecode := compiler.Bytecode()
-		vm := NewVm(bytecode)
+		vm := New(bytecode)
 
 		err = vm.Run()
 		if err != nil {

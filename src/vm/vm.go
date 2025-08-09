@@ -12,17 +12,20 @@ import (
 const (
 	StackSize      = 2048
 	GlobalVarsSize = 65536
+	MaxStackFrames = 1024
 )
 
 type VM struct {
-	constants    []object.Object
-	instructions code.Instructions
+	constants []object.Object
 
 	stack   []object.Object
 	globals []object.Object
 
 	// Always points to the first free slot on the stack
 	stackPointer int
+
+	stackFrames      []*StackFrame
+	stackFramesIndex int
 }
 
 var (
@@ -39,42 +42,58 @@ func nativeToObjectBoolean(nativeValue bool) object.Object {
 	return False
 }
 
-func NewVm(bytecode *compiler.Bytecode) *VM {
+func New(bytecode *compiler.Bytecode) *VM {
+	mainFn := &object.CompiledFunction{Instructions: bytecode.Instructions}
+
+	stackFrames := make([]*StackFrame, MaxStackFrames)
+
+	mainStackFrame := NewStackFrame(mainFn)
+	stackFrames[0] = mainStackFrame
+
 	stack := make([]object.Object, StackSize)
 	globals := make([]object.Object, GlobalVarsSize)
 
 	return &VM{
-		instructions: bytecode.Instructions,
-		constants:    bytecode.Constants,
-		stack:        stack,
-		globals:      globals,
-		stackPointer: 0,
+		constants:        bytecode.Constants,
+		globals:          globals,
+		stack:            stack,
+		stackPointer:     0,
+		stackFrames:      stackFrames,
+		stackFramesIndex: 1,
 	}
 }
 
 func NewVmWithGlobalStore(bytecode *compiler.Bytecode, globals []object.Object) *VM {
-	vm := NewVm(bytecode)
+	vm := New(bytecode)
 	vm.globals = globals
 
 	return vm
 }
 
 func (vm *VM) Run() error {
-	for instructionPointer := 0; instructionPointer < len(vm.instructions); instructionPointer++ {
-		instructionByte := vm.instructions[instructionPointer]
+	for vm.curStackFrame().ip < len(vm.curStackFrame().Instructions())-1 {
+		vm.curStackFrame().ip++
 
+		instructionPointer := vm.curStackFrame().ip
+		instructions := vm.curStackFrame().Instructions()
+		instructionByte := instructions[instructionPointer]
 		opcode := code.Opcode(instructionByte)
 
 		switch opcode {
 		case code.OpConstant:
-			constantIndex := utils.ReadUint16(vm.instructions[instructionPointer+1:])
+			fmt.Println("ip", instructionPointer)
+			fmt.Println("ins", instructions)
+			fmt.Println(">>", utils.ReadUint16(instructions[instructionPointer:]))
+			fmt.Println(">>>", instructions[instructionPointer:])
+
+			constantIndex := utils.ReadUint16(instructions[instructionPointer+1:])
 
 			def, err := code.LookupDefinition(instructionByte)
 			if err != nil {
 				return err
 			}
 
-			instructionPointer += def.OperandWidths[0]
+			vm.curStackFrame().ip += def.OperandWidths[0]
 
 			err = vm.stackPush(vm.constants[constantIndex])
 			if err != nil {
@@ -118,19 +137,19 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpGoto:
-			instruction := vm.instructions[instructionPointer+1:]
+			instruction := instructions[instructionPointer+1:]
 			newPosOperand := int(utils.ReadUint16(instruction))
 
-			instructionPointer = newPosOperand - 1
+			vm.curStackFrame().ip = newPosOperand - 1
 
 		case code.OpGotoNotTruthy:
 			condition := vm.stackPop()
 
 			if !isTruthy(condition) {
-				instruction := vm.instructions[instructionPointer+1:]
+				instruction := instructions[instructionPointer+1:]
 				newPosOperand := int(utils.ReadUint16(instruction))
 
-				instructionPointer = newPosOperand - 1
+				vm.curStackFrame().ip = newPosOperand - 1
 				continue
 			}
 
@@ -139,7 +158,7 @@ func (vm *VM) Run() error {
 				return err
 			}
 
-			instructionPointer += def.OperandWidths[0]
+			vm.curStackFrame().ip += def.OperandWidths[0]
 
 		case code.OpNull:
 			err := vm.stackPush(Null)
@@ -148,27 +167,36 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpSetGlobal:
-			instruction := vm.instructions[instructionPointer+1:]
+			instruction := instructions[instructionPointer+1:]
 			globalIndex := utils.ReadUint16(instruction)
 
-			instructionPointer += 2
+			def, err := code.LookupDefinition(instructionByte)
+			if err != nil {
+				return err
+			}
+			vm.curStackFrame().ip += def.OperandWidths[0]
+
 			value := vm.stackPop()
 			vm.globals[globalIndex] = value
 
 		case code.OpGetGlobal:
-			instruction := vm.instructions[instructionPointer+1:]
+			instruction := instructions[instructionPointer+1:]
 			globalIndex := utils.ReadUint16(instruction)
 
-			instructionPointer += 2
+			def, err := code.LookupDefinition(instructionByte)
+			if err != nil {
+				return err
+			}
+			vm.curStackFrame().ip += def.OperandWidths[0]
 
 			value := vm.globals[globalIndex]
-			err := vm.stackPush(value)
+			err = vm.stackPush(value)
 			if err != nil {
 				return err
 			}
 
 		case code.OpArray:
-			instruction := vm.instructions[instructionPointer+1:]
+			instruction := instructions[instructionPointer+1:]
 			arraySize := int(utils.ReadUint16(instruction))
 
 			def, err := code.LookupDefinition(instructionByte)
@@ -176,7 +204,7 @@ func (vm *VM) Run() error {
 				return err
 			}
 
-			instructionPointer += def.OperandWidths[0]
+			vm.curStackFrame().ip += def.OperandWidths[0]
 
 			start := vm.stackPointer - arraySize
 			end := vm.stackPointer
@@ -191,7 +219,7 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpHashMap:
-			instruction := vm.instructions[instructionPointer+1:]
+			instruction := instructions[instructionPointer+1:]
 			hashmapSize := int(utils.ReadUint16(instruction))
 
 			def, err := code.LookupDefinition(instructionByte)
@@ -199,7 +227,7 @@ func (vm *VM) Run() error {
 				return err
 			}
 
-			instructionPointer += def.OperandWidths[0]
+			vm.curStackFrame().ip += def.OperandWidths[0]
 
 			start := vm.stackPointer - hashmapSize
 			end := vm.stackPointer
@@ -506,4 +534,18 @@ func (vm *VM) buildHashmap(startStackPointer, endStackPointer int) (object.Objec
 	}
 
 	return hashmap, nil
+}
+
+func (vm *VM) curStackFrame() *StackFrame {
+	return vm.stackFrames[vm.stackFramesIndex-1]
+}
+
+func (vm *VM) pushStackFrame(frame *StackFrame) {
+	vm.stackFrames[vm.stackFramesIndex] = frame
+	vm.stackFramesIndex++
+}
+
+func (vm *VM) popStackFrame() *StackFrame {
+	vm.stackFramesIndex--
+	return vm.stackFrames[vm.stackFramesIndex]
 }
