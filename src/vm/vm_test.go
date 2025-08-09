@@ -305,7 +305,7 @@ func TestCallingFunctionWithoutArguments(t *testing.T) {
 		`, 3,
 		},
 		{
-			`let earlyReturn = fn() {
+			`let early_return = fn() {
 				if true {
 					return 10;
 				}
@@ -313,7 +313,7 @@ func TestCallingFunctionWithoutArguments(t *testing.T) {
 				return 20;
 			}
 
-			earlyReturn();
+			early_return();
 			`, 10,
 		},
 	}

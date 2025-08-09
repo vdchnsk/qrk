@@ -11,21 +11,21 @@ print("Goodbye universe!");
 ```
 
 ```rs
-fn fibanacci(n) {
+fn fibonacci(n) {
     if n < 2 {
         return n;
     }
-    return fibanacci(n-2) + fibanacci(n-1);
+    return fibonacci(n-2) + fibonacci(n-1);
 }
-fibanacci(42);
+fibonacci(42);
 ```
 
 ```rs
-fn isAnswerOnTheLifeQuestion(answer) { 
+fn is_life_question_answer(answer) { 
     let expectedAnswer = 42;
     return answer == expectedAnswer;
 };
-isAnswerOnTheLifeQuestion(69);
+is_life_question_answer(69);
 ```
 
 ```rs

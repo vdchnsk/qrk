@@ -17,7 +17,7 @@ func TestLetStatement(t *testing.T) {
 	}{
 		{"let x = 5;", "x", 5},
 		{"let y = true;", "y", true},
-		{"let fooBar = pi;", "fooBar", "pi"},
+		{"let foo_bar = pi;", "foo_bar", "pi"},
 	}
 
 	for _, tt := range tests {
