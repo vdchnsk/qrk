@@ -22,8 +22,8 @@ fibonacci(42);
 
 ```rs
 fn is_life_question_answer(answer) { 
-    let expectedAnswer = 42;
-    return answer == expectedAnswer;
+    let expected_answer = 42;
+    return answer == expected_answer;
 };
 is_life_question_answer(69);
 ```
