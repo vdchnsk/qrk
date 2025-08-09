@@ -316,6 +316,7 @@ func TestCallingFunctionWithoutArguments(t *testing.T) {
 			early_return();
 			`, 10,
 		},
+		{` let empty = fn() { }; empty(); `, Null},
 	}
 
 	runVmTests(t, tests)

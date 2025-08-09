@@ -265,6 +265,14 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case code.OpReturn:
+			vm.popStackFrame()
+			vm.stackPop()
+
+			if err := vm.stackPush(Null); err != nil {
+				return err
+			}
+
 		case code.OpPop:
 			vm.stackPop()
 		}
