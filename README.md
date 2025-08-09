@@ -17,6 +17,7 @@ fn fibonacci(n) {
     }
     return fibonacci(n-2) + fibonacci(n-1);
 }
+
 fibonacci(42);
 ```
 
@@ -25,6 +26,7 @@ fn is_life_question_answer(answer) {
     let expected_answer = 42;
     return answer == expected_answer;
 };
+
 is_life_question_answer(69);
 ```
 
@@ -33,6 +35,7 @@ let person = {
     "age": 10,
     "live": fn() { print("living..."); },
 };
+
 person["live"]();
 ```
 
