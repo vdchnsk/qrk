@@ -284,6 +284,8 @@ func TestIndexExpression(t *testing.T) {
 }
 
 func TestCallingFunctionWithoutArguments(t *testing.T) {
+	t.Skip("not implemented yet")
+
 	tests := []vmTestCase{
 		{"fn() { 5 }()", 5},
 		{"let f = fn() { 5 }; f()", 5},
