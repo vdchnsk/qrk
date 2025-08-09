@@ -284,13 +284,38 @@ func TestIndexExpression(t *testing.T) {
 }
 
 func TestCallingFunctionWithoutArguments(t *testing.T) {
-	t.Skip("not implemented yet")
-
 	tests := []vmTestCase{
 		{"fn() { 5 }()", 5},
 		{"let f = fn() { 5 }; f()", 5},
 		{"let f = fn() { return 5 }; f()", 5},
 		{"let f = fn() { return 10 + 5; }; f()", 15},
+		{`
+			let one = fn() { 1 };
+			let two = fn() { 2 };
+
+			one() + two();
+		`, 3,
+		},
+		{`
+			let one = fn() { 1 };
+			let two = fn() { one() + one()};
+			let three = fn() { two() + one() };
+
+			three();
+		`, 3,
+		},
+		{
+			`let earlyReturn = fn() {
+				if true {
+					return 10;
+				}
+
+				return 20;
+			}
+
+			earlyReturn();
+			`, 10,
+		},
 	}
 
 	runVmTests(t, tests)

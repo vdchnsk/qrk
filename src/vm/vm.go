@@ -247,12 +247,23 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpCall:
-			fn, ok := vm.stackPop().(*object.CompiledFunction)
+			fn, ok := vm.stack[vm.stackPointer-1].(*object.CompiledFunction)
 			if !ok {
 				return fmt.Errorf("calling a non-function object: %s", fn.Type())
 			}
 
-			return nil
+			stackFrame := NewStackFrame(fn)
+			vm.pushStackFrame(stackFrame)
+
+		case code.OpReturnValue:
+			returnValue := vm.stackPop()
+
+			vm.popStackFrame()
+			vm.stackPop()
+
+			if err := vm.stackPush(returnValue); err != nil {
+				return err
+			}
 
 		case code.OpPop:
 			vm.stackPop()
