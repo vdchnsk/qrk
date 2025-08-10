@@ -84,12 +84,12 @@ func (vm *VM) Run() error {
 			argIp := instructionPointer + 1
 			constantIndex := utils.ReadUint16(instructions[argIp:])
 
-			def, err := code.LookupDefinition(instructionByte)
+			op, err := code.LookupOperation(instructionByte)
 			if err != nil {
 				return err
 			}
 
-			vm.curStackFrame().ip += def.OperandWidths[0]
+			vm.curStackFrame().ip += op.OperandWidths[0]
 
 			err = vm.stackPush(vm.constants[constantIndex])
 			if err != nil {
@@ -149,12 +149,12 @@ func (vm *VM) Run() error {
 				continue
 			}
 
-			def, err := code.LookupDefinition(instructionByte)
+			op, err := code.LookupOperation(instructionByte)
 			if err != nil {
 				return err
 			}
 
-			vm.curStackFrame().ip += def.OperandWidths[0]
+			vm.curStackFrame().ip += op.OperandWidths[0]
 
 		case code.OpNull:
 			err := vm.stackPush(Null)
@@ -166,11 +166,11 @@ func (vm *VM) Run() error {
 			argIp := instructionPointer + 1
 			globalIndex := utils.ReadUint16(instructions[argIp:])
 
-			def, err := code.LookupDefinition(instructionByte)
+			op, err := code.LookupOperation(instructionByte)
 			if err != nil {
 				return err
 			}
-			vm.curStackFrame().ip += def.OperandWidths[0]
+			vm.curStackFrame().ip += op.OperandWidths[0]
 
 			value := vm.stackPop()
 			vm.globals[globalIndex] = value
@@ -179,11 +179,11 @@ func (vm *VM) Run() error {
 			argIp := instructionPointer + 1
 			globalIndex := utils.ReadUint16(instructions[argIp:])
 
-			def, err := code.LookupDefinition(instructionByte)
+			op, err := code.LookupOperation(instructionByte)
 			if err != nil {
 				return err
 			}
-			vm.curStackFrame().ip += def.OperandWidths[0]
+			vm.curStackFrame().ip += op.OperandWidths[0]
 
 			value := vm.globals[globalIndex]
 			err = vm.stackPush(value)
@@ -195,12 +195,12 @@ func (vm *VM) Run() error {
 			argIp := instructionPointer + 1
 			arraySize := int(utils.ReadUint16(instructions[argIp:]))
 
-			def, err := code.LookupDefinition(instructionByte)
+			op, err := code.LookupOperation(instructionByte)
 			if err != nil {
 				return err
 			}
 
-			vm.curStackFrame().ip += def.OperandWidths[0]
+			vm.curStackFrame().ip += op.OperandWidths[0]
 
 			start := vm.stackPointer - arraySize
 			end := vm.stackPointer
@@ -218,12 +218,12 @@ func (vm *VM) Run() error {
 			argIp := instructionPointer + 1
 			hashmapSize := int(utils.ReadUint16(instructions[argIp:]))
 
-			def, err := code.LookupDefinition(instructionByte)
+			op, err := code.LookupOperation(instructionByte)
 			if err != nil {
 				return err
 			}
 
-			vm.curStackFrame().ip += def.OperandWidths[0]
+			vm.curStackFrame().ip += op.OperandWidths[0]
 
 			start := vm.stackPointer - hashmapSize
 			end := vm.stackPointer

@@ -7,19 +7,16 @@ import (
 	"github.com/vdchnsk/qrk/src/utils"
 )
 
-func TestMake(t *testing.T) {
+func TestMakeInstruction(t *testing.T) {
 	tests := []struct {
 		op       Opcode
 		operands []int
 		expected []byte
 	}{
-		// 65534 = 11111111(255) + 11111110(254)
-		{OpConstant, []int{utils.MaxIntForBytes(2) - 1}, []byte{byte(OpConstant), 255, 254}},
-
-		// max int for 2 bytes is 65535 = 11111111(255) + 11111111(255)
-		{OpConstant, []int{utils.MaxIntForBytes(2)}, []byte{byte(OpConstant), 255, 255}},
-
-		{OpAdd, []int{}, []byte{byte(OpAdd)}},
+		{OpConstant, []int{utils.MaxIntForBytes(2) - 1}, []byte{byte(OpConstant), 255, 254}}, // almost max int instruction
+		{OpConstant, []int{utils.MaxIntForBytes(2)}, []byte{byte(OpConstant), 255, 255}},     // max int instruction
+		{OpGetLocal, []int{255}, []byte{byte(OpGetLocal), 255}},                              // get local binding instruction
+		{OpAdd, []int{}, []byte{byte(OpAdd)}},                                                // add instruction with no operands
 	}
 
 	for _, tt := range tests {
@@ -74,12 +71,12 @@ func TestReadOperands(t *testing.T) {
 	for _, tt := range tests {
 		instruction := MakeInstruction(tt.opcode, tt.operands...)
 
-		opcodeDefinition, err := LookupDefinition(byte(tt.opcode))
+		op, err := LookupOperation(byte(tt.opcode))
 		if err != nil {
 			t.Fatalf("definition not found: %s", err)
 		}
 
-		operandsRead, bytesRead := ReadOperands(opcodeDefinition, instruction[1:])
+		operandsRead, bytesRead := ReadOperands(op, instruction[1:])
 		if bytesRead != tt.bytesRead {
 			t.Fatalf("n wrong. expected=%d, got=%d", tt.bytesRead, bytesRead)
 		}

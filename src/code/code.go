@@ -12,7 +12,7 @@ type Opcode byte
 
 type Instructions []byte
 
-func (instructions Instructions) fmt(opcodeDefinition *Definition, operands []int) string {
+func (instructions Instructions) fmt(opcodeDefinition *Operation, operands []int) string {
 	operandsCount := len(opcodeDefinition.OperandWidths)
 
 	if len(operands) != operandsCount {
@@ -35,14 +35,14 @@ func (instructions Instructions) String() string {
 	instructionByteIndex := 0
 
 	for instructionByteIndex < len(instructions) {
-		opcodeDefinition, err := LookupDefinition(instructions[instructionByteIndex])
+		op, err := LookupOperation(instructions[instructionByteIndex])
 		if err != nil {
 			fmt.Fprintf(&out, "ERROR: %s", err)
 			continue
 		}
 
-		operands, readBytes := ReadOperands(opcodeDefinition, instructions[instructionByteIndex+1:])
-		formattedInstruction := instructions.fmt(opcodeDefinition, operands)
+		operands, readBytes := ReadOperands(op, instructions[instructionByteIndex+1:])
+		formattedInstruction := instructions.fmt(op, operands)
 
 		fmt.Fprintf(&out, "%04d %s\n", instructionByteIndex, formattedInstruction)
 
@@ -52,7 +52,7 @@ func (instructions Instructions) String() string {
 	return out.String()
 }
 
-type Definition struct {
+type Operation struct {
 	Name          string
 	OperandWidths []int
 }
@@ -87,6 +87,9 @@ const (
 	OpGetGlobal
 	OpSetGlobal
 
+	OpGetLocal
+	OpSetLocal
+
 	OpArray
 	OpHashMap
 
@@ -98,7 +101,7 @@ const (
 	OpReturn
 )
 
-var operandDefinitions = map[Opcode]*Definition{
+var operations = map[Opcode]*Operation{
 	OpConstant: {Name: "OpConstant", OperandWidths: []int{2}},
 
 	OpAdd: {Name: "OpAdd", OperandWidths: []int{}},
@@ -128,6 +131,9 @@ var operandDefinitions = map[Opcode]*Definition{
 	OpGetGlobal: {Name: "OpGetGlobal", OperandWidths: []int{2}},
 	OpSetGlobal: {Name: "OpSetGlobal", OperandWidths: []int{2}},
 
+	OpGetLocal: {Name: "OpGetLocal", OperandWidths: []int{1}},
+	OpSetLocal: {Name: "OpSetLocal", OperandWidths: []int{1}},
+
 	OpArray:   {Name: "OpArray", OperandWidths: []int{2}},
 	OpHashMap: {Name: "OpHashMap", OperandWidths: []int{2}},
 
@@ -139,28 +145,29 @@ var operandDefinitions = map[Opcode]*Definition{
 	OpReturn:      {Name: "OpReturn", OperandWidths: []int{}},
 }
 
-func LookupDefinition(opcode byte) (*Definition, error) {
-	def, ok := operandDefinitions[Opcode(opcode)]
+func LookupOperation(opcode byte) (*Operation, error) {
+	op, ok := operations[Opcode(opcode)]
 	if !ok {
 		return nil, fmt.Errorf("opcode %d undefined", opcode)
 	}
-	return def, nil
+
+	return op, nil
 }
 
 func MakeInstruction(op Opcode, operands ...int) []byte {
-	operandDefinition, ok := operandDefinitions[op]
+	operation, ok := operations[op]
 	if !ok {
 		fmt.Printf("ERROR: opcode %d is not defined\n", op)
 		return []byte{}
 	}
 
-	if len(operands) != len(operandDefinition.OperandWidths) {
-		fmt.Printf("ERROR: operand count %d does not match definition %d for opcode %d\n", len(operands), len(operandDefinition.OperandWidths), op)
+	if len(operands) != len(operation.OperandWidths) {
+		fmt.Printf("ERROR: operand count %d does not match definition %d for operation %d\n", len(operands), len(operation.OperandWidths), op)
 		return []byte{}
 	}
 
 	instructionSize := 1
-	for _, operandWidth := range operandDefinition.OperandWidths {
+	for _, operandWidth := range operation.OperandWidths {
 		instructionSize += operandWidth
 	}
 
@@ -171,7 +178,7 @@ func MakeInstruction(op Opcode, operands ...int) []byte {
 	offset := 1
 
 	for index, operand := range operands {
-		operandWidth := operandDefinition.OperandWidths[index]
+		operandWidth := operation.OperandWidths[index]
 
 		switch operandWidth {
 		case 1:
@@ -190,12 +197,12 @@ func MakeInstruction(op Opcode, operands ...int) []byte {
 	return instruction
 }
 
-func ReadOperands(opcodeDefinition *Definition, instructionBytes []byte) ([]int, int) {
-	operands := make([]int, len(opcodeDefinition.OperandWidths))
+func ReadOperands(operation *Operation, instructionBytes []byte) ([]int, int) {
+	operands := make([]int, len(operation.OperandWidths))
 
 	offset := 0
 
-	for i, width := range opcodeDefinition.OperandWidths {
+	for i, width := range operation.OperandWidths {
 		switch width {
 		case 2:
 			operands[i] = int(utils.ReadUint16(instructionBytes[offset:]))
