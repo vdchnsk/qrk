@@ -104,29 +104,29 @@ const (
 var operations = map[Opcode]*Operation{
 	OpConstant: {Name: "OpConstant", OperandWidths: []int{2}},
 
-	OpAdd: {Name: "OpAdd", OperandWidths: []int{}},
-	OpSub: {Name: "OpSub", OperandWidths: []int{}},
-	OpMul: {Name: "OpMul", OperandWidths: []int{}},
-	OpDiv: {Name: "OpDiv", OperandWidths: []int{}},
+	OpAdd: {Name: "OpAdd"},
+	OpSub: {Name: "OpSub"},
+	OpMul: {Name: "OpMul"},
+	OpDiv: {Name: "OpDiv"},
 
-	OpTrue:  {Name: "OpTrue", OperandWidths: []int{}},
-	OpFalse: {Name: "OpFalse", OperandWidths: []int{}},
+	OpTrue:  {Name: "OpTrue"},
+	OpFalse: {Name: "OpFalse"},
 
-	OpEqual:       {Name: "OpEqual", OperandWidths: []int{}},
-	OpNotEqual:    {Name: "OpNotEqual", OperandWidths: []int{}},
-	OpGreaterThan: {Name: "OpGreaterThan", OperandWidths: []int{}},
-	OpAnd:         {Name: "OpAnd", OperandWidths: []int{}},
-	OpOr:          {Name: "OpOr", OperandWidths: []int{}},
+	OpEqual:       {Name: "OpEqual"},
+	OpNotEqual:    {Name: "OpNotEqual"},
+	OpGreaterThan: {Name: "OpGreaterThan"},
+	OpAnd:         {Name: "OpAnd"},
+	OpOr:          {Name: "OpOr"},
 
-	OpMinus: {Name: "OpMinus", OperandWidths: []int{}},
-	OpBang:  {Name: "OpBang", OperandWidths: []int{}},
+	OpMinus: {Name: "OpMinus"},
+	OpBang:  {Name: "OpBang"},
 
-	OpPop: {Name: "OpPop", OperandWidths: []int{}},
+	OpPop: {Name: "OpPop"},
 
 	OpGotoNotTruthy: {Name: "OpGotoNotTruthy", OperandWidths: []int{2}},
 	OpGoto:          {Name: "OpGoto", OperandWidths: []int{2}},
 
-	OpNull: {Name: "OpNull", OperandWidths: []int{}},
+	OpNull: {Name: "OpNull"},
 
 	OpGetGlobal: {Name: "OpGetGlobal", OperandWidths: []int{2}},
 	OpSetGlobal: {Name: "OpSetGlobal", OperandWidths: []int{2}},
@@ -137,12 +137,12 @@ var operations = map[Opcode]*Operation{
 	OpArray:   {Name: "OpArray", OperandWidths: []int{2}},
 	OpHashMap: {Name: "OpHashMap", OperandWidths: []int{2}},
 
-	OpIndex: {Name: "OpIndex", OperandWidths: []int{}},
+	OpIndex: {Name: "OpIndex"},
 
-	OpCall: {Name: "OpCall", OperandWidths: []int{}},
+	OpCall: {Name: "OpCall"},
 
-	OpReturnValue: {Name: "OpReturnValue", OperandWidths: []int{}},
-	OpReturn:      {Name: "OpReturn", OperandWidths: []int{}},
+	OpReturnValue: {Name: "OpReturnValue"},
+	OpReturn:      {Name: "OpReturn"},
 }
 
 func LookupOperation(opcode byte) (*Operation, error) {
