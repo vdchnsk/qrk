@@ -204,11 +204,14 @@ func ReadOperands(operation *Operation, instructionBytes []byte) ([]int, int) {
 
 	for i, width := range operation.OperandWidths {
 		switch width {
+		case 1:
+			operands[i] = int(instructionBytes[offset])
 		case 2:
 			operands[i] = int(utils.ReadUint16(instructionBytes[offset:]))
 		case 4:
 			operands[i] = int(utils.ReadUint32(instructionBytes[offset:]))
 		}
+
 		offset += width
 	}
 

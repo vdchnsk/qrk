@@ -15,7 +15,7 @@ func TestMakeInstruction(t *testing.T) {
 	}{
 		{OpConstant, []int{utils.MaxIntForBytes(2) - 1}, []byte{byte(OpConstant), 255, 254}}, // almost max int instruction
 		{OpConstant, []int{utils.MaxIntForBytes(2)}, []byte{byte(OpConstant), 255, 255}},     // max int instruction
-		{OpGetLocal, []int{255}, []byte{byte(OpGetLocal), 255}},                              // get local binding instruction
+		{OpGetLocal, []int{utils.MaxIntForBytes(1)}, []byte{byte(OpGetLocal), 255}},          // get local binding instruction
 		{OpAdd, []int{}, []byte{byte(OpAdd)}},                                                // add instruction with no operands
 	}
 
@@ -40,6 +40,8 @@ func TestInstructionString(t *testing.T) {
 		MakeInstruction(OpConstant, 2),
 		MakeInstruction(OpConstant, utils.MaxIntForBytes(2)),
 		MakeInstruction(OpAdd),
+		MakeInstruction(OpGetLocal, utils.MaxIntForBytes(1)),
+		MakeInstruction(OpConstant, utils.MaxIntForBytes(2)),
 	}
 
 	expected := strings.Join([]string{
@@ -47,6 +49,8 @@ func TestInstructionString(t *testing.T) {
 		"0003 OpConstant 2",
 		"0006 OpConstant 65535",
 		"0009 OpAdd",
+		"0010 OpGetLocal 255",
+		"0012 OpConstant 65535",
 	}, "\n") + "\n"
 
 	flattened := Instructions{}
@@ -66,6 +70,7 @@ func TestReadOperands(t *testing.T) {
 		bytesRead int
 	}{
 		{OpConstant, []int{utils.MaxIntForBytes(2)}, 2},
+		{OpGetLocal, []int{utils.MaxIntForBytes(1)}, 1},
 	}
 
 	for _, tt := range tests {
