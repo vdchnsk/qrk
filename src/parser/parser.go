@@ -268,23 +268,23 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
-	prefix := p.prefixParseFns[p.currToken.Type]
-	if prefix == nil {
+	parsePrefix, ok := p.prefixParseFns[p.currToken.Type]
+	if !ok {
 		p.noPrefixParseFnError(p.currToken.Type)
 		return nil
 	}
 
-	leftExp := prefix()
+	leftExp := parsePrefix()
 
 	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
-		infix := p.infixParseFns[p.peekToken.Type]
-		if infix == nil {
+		parseInfix, ok := p.infixParseFns[p.peekToken.Type]
+		if !ok {
 			return leftExp
 		}
 
 		p.NextToken()
 
-		leftExp = infix(leftExp)
+		leftExp = parseInfix(leftExp)
 	}
 
 	return leftExp
