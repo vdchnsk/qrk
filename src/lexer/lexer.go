@@ -174,7 +174,7 @@ func (l *Lexer) readString() (string, error) {
 	for {
 		l.readChar()
 		if l.currChar == 0 {
-			return "", errors.New("no closing stirng symbol was found")
+			return "", errors.New("no closing string symbol was found")
 		}
 
 		if l.currChar == '"' {
