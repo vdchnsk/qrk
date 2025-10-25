@@ -10,4 +10,5 @@ const (
 	KEY_IS_NOT_HASHABLE                          = "key is not hashable"
 	PROVIDED_OBJECT_IS_NOT_HASHMAP               = "provided object is not HashMap"
 	PROVIDED_INDEX_CANNOT_BE_USED_AS_HASHMAP_KEY = "provided index cannot be used as a HashMap key"
+	NOT_A_HASHMAP                                = "not a HashMap"
 )

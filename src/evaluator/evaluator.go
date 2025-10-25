@@ -218,10 +218,7 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 	case token.MINUS:
 		return evalMinusOperatorExpression(right)
 	default:
-		return newError(
-			"%s: %s%s",
-			UNKNOWN_OPERATOR, operator, right.Type(),
-		)
+		return newError("%s: %s%s", UNKNOWN_OPERATOR, operator, right.Type())
 	}
 }
 
@@ -230,10 +227,7 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	rType := right.Type()
 
 	if lType != rType {
-		return newError(
-			"%s: %s %s %s",
-			TYPE_MISMATCH, left.Type(), operator, right.Type(),
-		)
+		return newError("%s: %s %s %s", TYPE_MISMATCH, left.Type(), operator, right.Type())
 	}
 
 	bothOperandsInts := lType == object.INTEGER_OBJ && rType == object.INTEGER_OBJ
@@ -251,10 +245,7 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return evalInfixBooleanExpression(operator, left, right)
 	}
 
-	return newError(
-		"%s: %s %s %s",
-		UNKNOWN_OPERATOR, lType, operator, rType,
-	)
+	return newError("%s: %s %s %s", UNKNOWN_OPERATOR, lType, operator, rType)
 }
 
 func evalInfixIntExpression(operator string, left, right object.Object) object.Object {
@@ -279,10 +270,7 @@ func evalInfixIntExpression(operator string, left, right object.Object) object.O
 	case token.NOT_EQ:
 		return hostToGuestBoolean(leftVal != rightVal)
 	default:
-		return newError(
-			"%s: %s %s %s",
-			UNKNOWN_OPERATOR, left.Type(), operator, right.Type(),
-		)
+		return newError("%s: %s %s %s", UNKNOWN_OPERATOR, left.Type(), operator, right.Type())
 	}
 }
 
@@ -294,10 +282,7 @@ func evalInfixStringExpression(operator string, left, right object.Object) objec
 	case token.PLUS:
 		return &object.String{Value: leftVal + rightVal}
 	default:
-		return newError(
-			"%s: %s %s %s",
-			UNKNOWN_OPERATOR, left.Type(), operator, right.Type(),
-		)
+		return newError("%s: %s %s %s", UNKNOWN_OPERATOR, left.Type(), operator, right.Type())
 	}
 }
 
@@ -315,10 +300,7 @@ func evalInfixBooleanExpression(operator string, left, right object.Object) obje
 	case token.OR:
 		return hostToGuestBoolean(leftVal || rightVal)
 	default:
-		return newError(
-			"%s: %s %s %s",
-			UNKNOWN_OPERATOR, left.Type(), operator, right.Type(),
-		)
+		return newError("%s: %s %s %s", UNKNOWN_OPERATOR, left.Type(), operator, right.Type())
 	}
 }
 
@@ -337,10 +319,7 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 
 func evalMinusOperatorExpression(right object.Object) object.Object {
 	if right.Type() != object.INTEGER_OBJ {
-		return newError(
-			"%s: -%s",
-			UNKNOWN_OPERATOR, right.Type(),
-		)
+		return newError("%s: -%s", UNKNOWN_OPERATOR, right.Type())
 	}
 
 	value := right.(*object.Integer).Value
@@ -371,26 +350,20 @@ func evalIdentifier(identifier string, env *object.Environment) object.Object {
 		return builtInFunc
 	}
 
-	return newError(
-		"%s: %s",
-		IDENTIFIER_NOT_FOUND, identifier,
-	)
+	return newError("%s: %s", IDENTIFIER_NOT_FOUND, identifier)
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {
 	switch fn := fn.(type) {
 	case *object.Function:
-		extendedEnv := extendFuncEnv(fn, args)
-		evaluatedBody := Eval(fn.Body, extendedEnv)
+		bodyEvalRes := Eval(fn.Body, extendFuncEnv(fn, args))
+		return unwrapReturnWrapper(bodyEvalRes)
 
-		return unwrapReturnWrapper(evaluatedBody)
 	case *object.BuiltInFunction:
 		return fn.Fn(args...)
+
 	default:
-		return newError(
-			"%s %s",
-			NOT_A_FUNCTION, fn.Type(),
-		)
+		return newError("%s %s", NOT_A_FUNCTION, fn.Type())
 	}
 }
 
@@ -405,23 +378,24 @@ func extendFuncEnv(fn *object.Function, args []object.Object) *object.Environmen
 }
 
 func unwrapReturnWrapper(obj object.Object) object.Object {
-	if returnWrapper, ok := obj.(*object.ReturnWrapper); ok {
-		return returnWrapper.Value
+	returnWrapper, isWrapped := obj.(*object.ReturnWrapper)
+	if !isWrapped {
+		return obj
 	}
-	return obj
+
+	return returnWrapper.Value
 }
 
 func evalIndexExpression(left, index object.Object) object.Object {
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
 		return evalArrayIndexExpression(left, index)
+
 	case left.Type() == object.HASH_MAP_OBJ:
 		return evalHashMapIndexExpression(left, index)
+
 	default:
-		return newError(
-			"%s %s",
-			INDEX_OPERATOR_NOT_SUPPORTED, left.Type(),
-		)
+		return newError("%s %s", INDEX_OPERATOR_NOT_SUPPORTED, left.Type())
 	}
 }
 
@@ -447,23 +421,20 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 func evalHashMap(node *ast.HashMapLiteral, env *object.Environment) object.Object {
 	pairs := make(map[object.HashKey]object.HashPair)
 
-	for nodeKey, nodeValue := range node.Pairs {
-		key := Eval(nodeKey, env)
+	for keyNode, valueNode := range node.Pairs {
+		key := Eval(keyNode, env)
 		if isError(key) {
 			return key
 		}
 
 		hashableKey, ok := key.(object.Hashable)
 		if !ok {
-			return newError(
-				"%s %s",
-				KEY_IS_NOT_HASHABLE, key.Type(),
-			)
+			return newError("%s %s", KEY_IS_NOT_HASHABLE, key.Type())
 		}
 
-		value := Eval(nodeValue, env)
-		if isError(key) {
-			return key
+		value := Eval(valueNode, env)
+		if isError(value) {
+			return value
 		}
 
 		pairs[hashableKey.HashKey()] = object.HashPair{Key: key, Value: value}
@@ -473,7 +444,11 @@ func evalHashMap(node *ast.HashMapLiteral, env *object.Environment) object.Objec
 }
 
 func evalHashMapIndexExpression(hashMap, index object.Object) object.Object {
-	hashMapObject := hashMap.(*object.HashMap)
+	hashMapObject, ok := hashMap.(*object.HashMap)
+	if !ok {
+		return newError("%s %s", NOT_A_HASHMAP, hashMap.Type())
+	}
+
 	hashMapIndex, ok := index.(object.Hashable)
 	if !ok {
 		return newError(PROVIDED_INDEX_CANNOT_BE_USED_AS_HASHMAP_KEY)
@@ -483,5 +458,6 @@ func evalHashMapIndexExpression(hashMap, index object.Object) object.Object {
 	if !ok {
 		return NULL
 	}
+
 	return pair.Value
 }
