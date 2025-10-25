@@ -154,6 +154,7 @@ func (fn *Function) Inspect() string {
 
 type CompiledFunction struct {
 	Instructions []byte
+	LocalsCount  int
 }
 
 func (cfn *CompiledFunction) Type() ObjectType { return COMPILED_FUNC_OBJ }

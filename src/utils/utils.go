@@ -24,6 +24,10 @@ func MaxIntForBytes(amountOfBytes int) int {
 	return (1 << (amountOfBytes * 8)) - 1
 }
 
+func ReadUint8(bytes []byte) uint8 {
+	return uint8(bytes[0])
+}
+
 func ReadUint16(bytes []byte) uint16 {
 	return binary.BigEndian.Uint16(bytes)
 }

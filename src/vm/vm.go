@@ -47,7 +47,7 @@ func New(bytecode *compiler.Bytecode) *VM {
 
 	stackFrames := make([]*StackFrame, MaxStackFrames)
 
-	mainStackFrame := NewStackFrame(mainFn)
+	mainStackFrame := NewStackFrame(mainFn, 0)
 	stackFrames[0] = mainStackFrame
 
 	stack := make([]object.Object, StackSize)
@@ -191,6 +191,30 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case code.OpSetLocal:
+			localIndex := utils.ReadUint8(instructions[instructionPointer+1:])
+			vm.curStackFrame().ip += 1
+
+			frame := vm.curStackFrame()
+
+			local := vm.stackPop()
+			localLocation := frame.basePointer + int(localIndex)
+
+			vm.stack[localLocation] = local
+
+		case code.OpGetLocal:
+			localIndex := utils.ReadUint8(instructions[instructionPointer+1:])
+			vm.curStackFrame().ip += 1
+
+			frame := vm.curStackFrame()
+
+			location := frame.basePointer + int(localIndex)
+			local := vm.stack[location]
+
+			if err := vm.stackPush(local); err != nil {
+				return err
+			}
+
 		case code.OpArray:
 			argIp := instructionPointer + 1
 			arraySize := int(utils.ReadUint16(instructions[argIp:]))
@@ -252,22 +276,24 @@ func (vm *VM) Run() error {
 				return fmt.Errorf("calling a non-function object: %s", fn.Type())
 			}
 
-			stackFrame := NewStackFrame(fn)
+			stackFrame := NewStackFrame(fn, vm.stackPointer)
 			vm.pushStackFrame(stackFrame)
+
+			vm.createStackVacuum(stackFrame.basePointer, fn.LocalsCount)
 
 		case code.OpReturnValue:
 			returnValue := vm.stackPop()
 
-			vm.popStackFrame()
-			vm.stackPop()
+			frame := vm.popStackFrame()
+			vm.stackPointer = frame.basePointer - 1
 
 			if err := vm.stackPush(returnValue); err != nil {
 				return err
 			}
 
 		case code.OpReturn:
-			vm.popStackFrame()
-			vm.stackPop()
+			frame := vm.popStackFrame()
+			vm.stackPointer = frame.basePointer - 1
 
 			if err := vm.stackPush(Null); err != nil {
 				return err
@@ -279,6 +305,10 @@ func (vm *VM) Run() error {
 	}
 
 	return nil
+}
+
+func (vm *VM) createStackVacuum(sfBasePointer int, vacuumInstructions int) {
+	vm.stackPointer = sfBasePointer + vacuumInstructions
 }
 
 func isTruthy(obj object.Object) bool {

@@ -292,10 +292,12 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpReturn)
 		}
 
+		localsCount := c.symbolTable.definitionsCount
 		instructions := c.leaveScope()
 
 		compiledFunc := &object.CompiledFunction{
 			Instructions: instructions,
+			LocalsCount:  localsCount,
 		}
 
 		c.emit(code.OpConstant, c.addConstant(compiledFunc))

@@ -6,14 +6,16 @@ import (
 )
 
 type StackFrame struct {
-	fn *object.CompiledFunction
-	ip int
+	fn          *object.CompiledFunction
+	ip          int
+	basePointer int
 }
 
-func NewStackFrame(fn *object.CompiledFunction) *StackFrame {
+func NewStackFrame(fn *object.CompiledFunction, basePointer int) *StackFrame {
 	return &StackFrame{
-		fn: fn,
-		ip: -1,
+		fn:          fn,
+		ip:          -1,
+		basePointer: basePointer,
 	}
 }
 
