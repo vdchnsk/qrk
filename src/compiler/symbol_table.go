@@ -54,11 +54,11 @@ func (s *SymbolTable) Define(name string) Symbol {
 }
 
 func (s *SymbolTable) Resolve(name string) (Symbol, bool) {
-	obj, ok := s.store[name]
+	obj, inCurScope := s.store[name]
 
-	if !ok && s.Outer != nil {
+	if !inCurScope && s.Outer != nil {
 		return s.Outer.Resolve(name)
 	}
 
-	return obj, ok
+	return obj, inCurScope
 }
