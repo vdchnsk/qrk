@@ -323,14 +323,27 @@ func TestCallingFunctionWithoutArguments(t *testing.T) {
 }
 
 func TestFirstClassFuncs(t *testing.T) {
-	tests := []vmTestCase{{
-		`
+	tests := []vmTestCase{
+		{
+			`
 			let returns_one = fn() { 1; };
 			let returns_one_returner = fn() { returns_one; };
 
 			returns_one_returner()();
-		`, 1,
-	}}
+			`,
+			1,
+		},
+		{
+			`
+			let returns_one_returner = fn() {
+				let returns_one = fn() { 1; };
+				return returns_one;
+			}
+
+			returns_one_returner()();
+			`,
+			1,
+		}}
 
 	runVmTests(t, tests)
 }
@@ -346,45 +359,45 @@ func TestFunctionCallsWithBindings(t *testing.T) {
 		},
 		{
 			input: `
-				let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
+				let one_and_two = fn() { let one = 1; let two = 2; one + two; };
 
-				oneAndTwo();
+				one_and_two();
 			`,
 			expected: 3,
 		},
 		{
 			input: `
-				let oneAndTwo = fn() { let one = 1; let two = 2; one + two; }
-				let threeAndFour = fn() { let three = 3; let four = 4; three + four; };
+				let one_and_two = fn() { let one = 1; let two = 2; one + two; }
+				let three_and_four = fn() { let three = 3; let four = 4; three + four; };
 
-				oneAndTwo() + threeAndFour();
+				one_and_two() + three_and_four();
 			`,
 			expected: 10,
 		},
 		{
 			input: `
-				let firstFoobar = fn() { let foobar = 50; foobar };
-				let secondFoobar = fn() { let foobar = 100; foobar };
+				let foobar_one = fn() { let foobar = 50; foobar };
+				let foobar_two = fn() { let foobar = 100; foobar };
 
-				firstFoobar() + secondFoobar();
+				foobar_one() + foobar_two();
 			`,
 			expected: 150,
 		},
 		{
 			input: `
-				let globalSeed = 50;
+				let global_seed = 50;
 
-				let minusOne = fn() {
+				let minus_one = fn() {
 					let num = 1;
-					globalSeed - num;
+					global_seed - num;
 				}
 
-				let minusTwo = fn() {
+				let minus_two = fn() {
 					let num = 2;
-					globalSeed - num;
+					global_seed - num;
 				}
 
-				minusOne() + minusTwo()
+				minus_one() + minus_two()
 			`,
 			expected: 97,
 		},
