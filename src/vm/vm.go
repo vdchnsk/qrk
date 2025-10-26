@@ -271,6 +271,8 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpCall:
+			vm.curStackFrame().ip++ // a crutch until function arguments are fully implemented, the empty byte we're skipping is the argument count
+
 			fn, ok := vm.stack[vm.stackPointer-1].(*object.CompiledFunction)
 			if !ok {
 				return fmt.Errorf("calling a non-function object: %s", fn.Type())

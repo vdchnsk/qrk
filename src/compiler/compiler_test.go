@@ -735,7 +735,7 @@ func TestFunctionCalls(t *testing.T) {
 			},
 			expectedInstructions: []code.Instructions{
 				code.MakeInstruction(code.OpConstant, 1), // the compiled function
-				code.MakeInstruction(code.OpCall),
+				code.MakeInstruction(code.OpCall, 0),
 				code.MakeInstruction(code.OpPop),
 			},
 		},
@@ -755,7 +755,53 @@ func TestFunctionCalls(t *testing.T) {
 				code.MakeInstruction(code.OpConstant, 1), // the compiled function
 				code.MakeInstruction(code.OpSetGlobal, 0),
 				code.MakeInstruction(code.OpGetGlobal, 0),
-				code.MakeInstruction(code.OpCall),
+				code.MakeInstruction(code.OpCall, 0),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input: `
+				let one_arg = fn(a) { };
+				one_arg(1);
+			`,
+			expectedConstants: []any{
+				[]code.Instructions{
+					code.MakeInstruction(code.OpReturn),
+				},
+				1,
+			},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0), // the compiled function
+				code.MakeInstruction(code.OpSetGlobal, 0),
+
+				code.MakeInstruction(code.OpGetGlobal, 0), // get function by identifier
+				code.MakeInstruction(code.OpConstant, 1),  // argument
+				code.MakeInstruction(code.OpCall, 1),      // call function with 1 argument
+
+				code.MakeInstruction(code.OpPop), // exit
+			},
+		},
+		{
+			input: `
+				let multiple_args = fn(a, b, c) { };
+				multiple_args(1, 2, 3);
+			`,
+			expectedConstants: []any{
+				[]code.Instructions{
+					code.MakeInstruction(code.OpReturn),
+				},
+				1, 2, 3,
+			},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpConstant, 0), // the compiled function
+				code.MakeInstruction(code.OpSetGlobal, 0),
+
+				code.MakeInstruction(code.OpGetGlobal, 0), // get function by identifier
+				code.MakeInstruction(code.OpConstant, 1),
+				code.MakeInstruction(code.OpConstant, 2),
+				code.MakeInstruction(code.OpConstant, 3),
+				code.MakeInstruction(code.OpCall, 3), // call function with 3 arguments
+
 				code.MakeInstruction(code.OpPop),
 			},
 		},

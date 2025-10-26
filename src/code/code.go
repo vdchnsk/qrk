@@ -139,7 +139,7 @@ var operations = map[Opcode]*Operation{
 
 	OpIndex: {Name: "OpIndex"},
 
-	OpCall: {Name: "OpCall"},
+	OpCall: {Name: "OpCall", OperandWidths: []int{1}},
 
 	OpReturnValue: {Name: "OpReturnValue"},
 	OpReturn:      {Name: "OpReturn"},
