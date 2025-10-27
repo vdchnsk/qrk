@@ -53,7 +53,7 @@ func testObject[T bool | int64 | string](expected T, actual object.Object) error
 
 type vmTestCase struct {
 	input    string
-	expected interface{}
+	expected any
 }
 
 func runVmTests(t *testing.T, tests []vmTestCase) {
@@ -70,6 +70,13 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 
 		bytecode := compiler.Bytecode()
 		vm := New(bytecode)
+
+		fmt.Print("=== instructions ===\n", compiler.Bytecode().Instructions)
+
+		fmt.Println("=== constants ===")
+		for _, constant := range compiler.Bytecode().Constants {
+			fmt.Printf(" -- %#v\n", constant.Inspect())
+		}
 
 		err = vm.Run()
 		if err != nil {
@@ -400,6 +407,27 @@ func TestFunctionCallsWithBindings(t *testing.T) {
 				minus_one() + minus_two()
 			`,
 			expected: 97,
+		},
+	}
+
+	runVmTests(t, tests)
+}
+
+func TestFunctionCallsWithArgumentsAndBindings(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+				let func = fn(a) { a; };
+				func(1)
+			`,
+			expected: 1,
+		},
+		{
+			input: `
+				let func = fn(a, b) { a + b; };
+				func(1, 2);
+			`,
+			expected: 3,
 		},
 	}
 

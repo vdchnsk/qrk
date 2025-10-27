@@ -91,8 +91,7 @@ func (vm *VM) Run() error {
 
 			vm.curStackFrame().ip += op.OperandWidths[0]
 
-			err = vm.stackPush(vm.constants[constantIndex])
-			if err != nil {
+			if err = vm.stackPush(vm.constants[constantIndex]); err != nil {
 				return err
 			}
 
@@ -186,14 +185,18 @@ func (vm *VM) Run() error {
 			vm.curStackFrame().ip += op.OperandWidths[0]
 
 			value := vm.globals[globalIndex]
-			err = vm.stackPush(value)
-			if err != nil {
+			if err = vm.stackPush(value); err != nil {
 				return err
 			}
 
 		case code.OpSetLocal:
 			localIndex := utils.ReadUint8(instructions[instructionPointer+1:])
-			vm.curStackFrame().ip += 1
+
+			op, err := code.LookupOperation(instructionByte)
+			if err != nil {
+				return err
+			}
+			vm.curStackFrame().ip += op.OperandWidths[0]
 
 			frame := vm.curStackFrame()
 
@@ -204,7 +207,12 @@ func (vm *VM) Run() error {
 
 		case code.OpGetLocal:
 			localIndex := utils.ReadUint8(instructions[instructionPointer+1:])
-			vm.curStackFrame().ip += 1
+
+			op, err := code.LookupOperation(instructionByte)
+			if err != nil {
+				return err
+			}
+			vm.curStackFrame().ip += op.OperandWidths[0]
 
 			frame := vm.curStackFrame()
 
@@ -271,17 +279,17 @@ func (vm *VM) Run() error {
 			}
 
 		case code.OpCall:
-			vm.curStackFrame().ip++ // a crutch until function arguments are fully implemented, the empty byte we're skipping is the argument count
+			argsCountOperand := utils.ReadUint8(instructions[instructionPointer+1:])
 
-			fn, ok := vm.stack[vm.stackPointer-1].(*object.CompiledFunction)
-			if !ok {
-				return fmt.Errorf("calling a non-function object: %s", fn.Type())
+			op, err := code.LookupOperation(instructionByte)
+			if err != nil {
+				return err
 			}
+			vm.curStackFrame().ip += op.OperandWidths[0]
 
-			stackFrame := NewStackFrame(fn, vm.stackPointer)
-			vm.pushStackFrame(stackFrame)
-
-			vm.createStackVacuum(stackFrame.basePointer, fn.LocalsCount)
+			if err = vm.callFunc(int(argsCountOperand)); err != nil {
+				return err
+			}
 
 		case code.OpReturnValue:
 			returnValue := vm.stackPop()
@@ -305,6 +313,23 @@ func (vm *VM) Run() error {
 			vm.stackPop()
 		}
 	}
+
+	return nil
+}
+
+func (vm *VM) callFunc(argsCount int) error {
+	basePointer := vm.stackPointer - argsCount
+	fnStackPos := basePointer - 1
+
+	fn, ok := vm.stack[fnStackPos].(*object.CompiledFunction)
+	if !ok {
+		return fmt.Errorf("calling a non-function object: %s", fn.Type())
+	}
+
+	stackFrame := NewStackFrame(fn, basePointer)
+	vm.pushStackFrame(stackFrame)
+
+	vm.createStackVacuum(stackFrame.basePointer, fn.LocalsCount)
 
 	return nil
 }

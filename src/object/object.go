@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/vdchnsk/qrk/src/ast"
+	"github.com/vdchnsk/qrk/src/code"
 )
 
 type ObjectType string
@@ -153,13 +154,13 @@ func (fn *Function) Inspect() string {
 }
 
 type CompiledFunction struct {
-	Instructions []byte
+	Instructions code.Instructions
 	LocalsCount  int
 }
 
 func (cfn *CompiledFunction) Type() ObjectType { return COMPILED_FUNC_OBJ }
 func (cfn *CompiledFunction) Inspect() string {
-	return fmt.Sprintf("CompiledFunction[%p]", cfn)
+	return fmt.Sprintf("CompiledFunction[%p]: %s", cfn, cfn.Instructions)
 }
 
 type BuiltInFunction struct {
