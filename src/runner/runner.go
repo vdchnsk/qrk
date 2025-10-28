@@ -11,6 +11,7 @@ import (
 	"github.com/vdchnsk/qrk/src/lexer"
 	"github.com/vdchnsk/qrk/src/object"
 	"github.com/vdchnsk/qrk/src/parser"
+	"github.com/vdchnsk/qrk/src/stdlib"
 	"github.com/vdchnsk/qrk/src/vm"
 )
 
@@ -66,6 +67,10 @@ func Compile(input string, out io.Writer, symbolTable *compiler.SymbolTable, con
 	if len(parser.Errors()) != 0 {
 		parser.PrettyPrintErrors(out)
 		return nil
+	}
+
+	for i, f := range stdlib.FuncsSlice {
+		symbolTable.DefineStdlibFunc(i, f.Name)
 	}
 
 	compiler := compiler.NewWithState(symbolTable, constants)
