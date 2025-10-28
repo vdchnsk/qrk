@@ -78,8 +78,7 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 			fmt.Printf(" -- %#v\n", constant.Inspect())
 		}
 
-		err = vm.Run()
-		if err != nil {
+		if err = vm.Run(); err != nil {
 			t.Fatalf("vm error: %s", err)
 		}
 
@@ -498,4 +497,40 @@ func TestFunctionCalls_ArgsAndBindings(t *testing.T) {
 	}
 
 	runVmTests(t, tests)
+}
+
+func TestFunctionCalls_WrongArguments(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input:    `fn() { }(1);`,
+			expected: ErrWrongNumberOfArguments(0, 1),
+		},
+		{
+			input:    `fn(a, b) { }(1);`,
+			expected: ErrWrongNumberOfArguments(2, 1),
+		},
+		{
+			input:    `fn(a) { }();`,
+			expected: ErrWrongNumberOfArguments(1, 0),
+		},
+	}
+
+	for _, tt := range tests {
+		program := parse(tt.input)
+
+		compiler := compiler.New()
+		if err := compiler.Compile(program); err != nil {
+			t.Fatalf("compiler error: %s", err)
+		}
+
+		vm := New(compiler.Bytecode())
+		err := vm.Run()
+		if err == nil {
+			t.Fatalf("expected vm error but got none")
+		}
+
+		if fmt.Sprint(err) != fmt.Sprint(tt.expected) {
+			t.Fatalf("wrong vm error. got=%q, want=%q", err.Error(), tt.expected)
+		}
+	}
 }

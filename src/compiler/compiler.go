@@ -302,6 +302,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		compiledFunc := &object.CompiledFunction{
 			Instructions: instructions,
 			LocalsCount:  localsCount,
+			ParamsCount:  len(node.Parameters),
 		}
 
 		c.emit(code.OpConstant, c.addConstant(compiledFunc))

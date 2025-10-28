@@ -156,6 +156,7 @@ func (fn *Function) Inspect() string {
 type CompiledFunction struct {
 	Instructions code.Instructions
 	LocalsCount  int
+	ParamsCount  int
 }
 
 func (cfn *CompiledFunction) Type() ObjectType { return COMPILED_FUNC_OBJ }

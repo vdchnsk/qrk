@@ -326,6 +326,10 @@ func (vm *VM) callFunc(argsCount int) error {
 		return fmt.Errorf("calling a non-function object: %s", fn.Type())
 	}
 
+	if fn.ParamsCount != argsCount {
+		return ErrWrongNumberOfArguments(fn.ParamsCount, argsCount)
+	}
+
 	stackFrame := NewStackFrame(fn, basePointer)
 	vm.pushStackFrame(stackFrame)
 
