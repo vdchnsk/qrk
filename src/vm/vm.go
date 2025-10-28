@@ -323,7 +323,7 @@ func (vm *VM) callFunc(argsCount int) error {
 
 	fn, ok := vm.stack[fnStackPos].(*object.CompiledFunction)
 	if !ok {
-		return fmt.Errorf("calling a non-function object: %s", fn.Type())
+		return ErrCallingNonFunction(fn.Type())
 	}
 
 	if fn.ParamsCount != argsCount {
