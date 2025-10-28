@@ -355,7 +355,7 @@ func TestFirstClassFuncs(t *testing.T) {
 	runVmTests(t, tests)
 }
 
-func TestFunctionCallsWithBindings(t *testing.T) {
+func TestFunctionCalls_Bindings(t *testing.T) {
 	tests := []vmTestCase{
 		{
 			input: `
@@ -413,7 +413,7 @@ func TestFunctionCallsWithBindings(t *testing.T) {
 	runVmTests(t, tests)
 }
 
-func TestFunctionCallsWithArgumentsAndBindings(t *testing.T) {
+func TestFunctionCalls_ArgsAndBindings(t *testing.T) {
 	tests := []vmTestCase{
 		{
 			input: `
@@ -428,6 +428,72 @@ func TestFunctionCallsWithArgumentsAndBindings(t *testing.T) {
 				func(1, 2);
 			`,
 			expected: 3,
+		},
+		{
+			input: `
+				let sum = fn(a, b) {
+					return a + b;
+				}
+
+				sum(1, 2);	
+			`,
+			expected: 3,
+		},
+		{
+			input: `
+				let sum = fn(a, b) {
+					let c = a + b;
+					return c;
+				}
+				
+				sum(sum(1, 2), sum(3, 4));
+			`,
+			expected: 10,
+		},
+		{
+			input: `
+				let sum = fn(a, b) {
+					let c = a + b;
+					return c;
+				}
+
+				let main = fn() {
+					return sum(1, 2) + sum(3, 4);
+				}
+
+				main();
+			`,
+			expected: 10,
+		},
+		{
+			input: `
+				let sum = fn(a, b) {
+					let c = a + b;
+					return c;
+				}
+
+				let main = fn() {
+					sum(1, 2) + sum(3, 4);
+				}()
+			`,
+			expected: 10,
+		},
+		{
+			input: `
+				let global_num = 20;
+
+				let sum = fn(a, b) {
+					let c = a + b;
+					return c + global_num;
+				}
+
+				let outer = fn() {
+					return sum(1, 2) + sum(3, 4) + global_num;
+				}
+
+				outer() + global_num;
+			`,
+			expected: 90,
 		},
 	}
 
