@@ -6,6 +6,7 @@ import (
 	"github.com/vdchnsk/qrk/src/ast"
 	"github.com/vdchnsk/qrk/src/code"
 	"github.com/vdchnsk/qrk/src/object"
+	"github.com/vdchnsk/qrk/src/stdlib"
 	"github.com/vdchnsk/qrk/src/token"
 	"github.com/vdchnsk/qrk/src/utils"
 )
@@ -45,8 +46,14 @@ func New() *Compiler {
 		prevInstruction: EmittedInstruction{},
 	}
 
+	symbolTable := NewSymbolTable()
+
+	for i, f := range stdlib.FuncsSlice {
+		symbolTable.DefineStdlibFunc(i, f.Name)
+	}
+
 	return &Compiler{
-		symbolTable: NewSymbolTable(),
+		symbolTable: symbolTable,
 		constants:   []object.Object{},
 		scopes:      []CompilationScope{mainScope},
 		scopeIndex:  0,
@@ -231,10 +238,18 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return fmt.Errorf("undefined variable %s", node.Value)
 		}
 
-		if symbol.Scope == GlobalScope {
+		switch symbol.Scope {
+		case StdlibScope:
+			c.emit(code.OpGetStdlib, symbol.Index)
+
+		case GlobalScope:
 			c.emit(code.OpGetGlobal, symbol.Index)
-		} else {
+
+		case LocalScope:
 			c.emit(code.OpGetLocal, symbol.Index)
+
+		default:
+			return nil
 		}
 
 	case *ast.ArrayLiteral:

@@ -90,6 +90,8 @@ const (
 	OpGetLocal
 	OpSetLocal
 
+	OpGetStdlib
+
 	OpArray
 	OpHashMap
 
@@ -133,6 +135,8 @@ var operations = map[Opcode]*Operation{
 
 	OpGetLocal: {Name: "OpGetLocal", OperandWidths: []int{1}},
 	OpSetLocal: {Name: "OpSetLocal", OperandWidths: []int{1}},
+
+	OpGetStdlib: {Name: "OpGetStdlibFunc", OperandWidths: []int{1}},
 
 	OpArray:   {Name: "OpArray", OperandWidths: []int{2}},
 	OpHashMap: {Name: "OpHashMap", OperandWidths: []int{2}},

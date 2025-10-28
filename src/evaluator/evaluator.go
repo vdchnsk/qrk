@@ -5,6 +5,7 @@ import (
 
 	"github.com/vdchnsk/qrk/src/ast"
 	"github.com/vdchnsk/qrk/src/object"
+	"github.com/vdchnsk/qrk/src/stdlib"
 	"github.com/vdchnsk/qrk/src/token"
 )
 
@@ -346,7 +347,7 @@ func evalIdentifier(identifier string, env *object.Environment) object.Object {
 		return envFunc
 	}
 
-	if builtInFunc, ok := builtInFuncs[identifier]; ok {
+	if builtInFunc, ok := stdlib.Funcs[identifier]; ok {
 		return builtInFunc
 	}
 

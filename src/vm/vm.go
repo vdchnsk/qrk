@@ -6,6 +6,7 @@ import (
 	"github.com/vdchnsk/qrk/src/code"
 	"github.com/vdchnsk/qrk/src/compiler"
 	"github.com/vdchnsk/qrk/src/object"
+	"github.com/vdchnsk/qrk/src/stdlib"
 	"github.com/vdchnsk/qrk/src/utils"
 )
 
@@ -223,6 +224,19 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case code.OpGetStdlib:
+			funcIndex := utils.ReadUint8(instructions[instructionPointer+1:])
+
+			op, err := code.LookupOperation(instructionByte)
+			if err != nil {
+				return err
+			}
+			vm.curStackFrame().ip += op.OperandWidths[0]
+
+			if err := vm.stackPush(stdlib.FuncsSlice[funcIndex]); err != nil {
+				return err
+			}
+
 		case code.OpArray:
 			argIp := instructionPointer + 1
 			arraySize := int(utils.ReadUint16(instructions[argIp:]))
@@ -321,19 +335,33 @@ func (vm *VM) callFunc(argsCount int) error {
 	basePointer := vm.stackPointer - argsCount
 	fnStackPos := basePointer - 1
 
-	fn, ok := vm.stack[fnStackPos].(*object.CompiledFunction)
-	if !ok {
+	fn := vm.stack[fnStackPos]
+
+	switch fn := fn.(type) {
+	case *object.CompiledFunction:
+		if fn.ParamsCount != argsCount {
+			return ErrWrongNumberOfArguments(fn.ParamsCount, argsCount)
+		}
+
+		stackFrame := NewStackFrame(fn, basePointer)
+		vm.pushStackFrame(stackFrame)
+
+		vm.createStackVacuum(stackFrame.basePointer, fn.LocalsCount)
+
+	case *object.BuiltInFunction:
+		args := vm.stack[basePointer:vm.stackPointer]
+
+		result := fn.Fn(args...)
+
+		if result != nil {
+			vm.stackPush(result)
+		} else {
+			vm.stackPush(Null)
+		}
+
+	default:
 		return ErrCallingNonFunction(fn.Type())
 	}
-
-	if fn.ParamsCount != argsCount {
-		return ErrWrongNumberOfArguments(fn.ParamsCount, argsCount)
-	}
-
-	stackFrame := NewStackFrame(fn, basePointer)
-	vm.pushStackFrame(stackFrame)
-
-	vm.createStackVacuum(stackFrame.basePointer, fn.LocalsCount)
 
 	return nil
 }

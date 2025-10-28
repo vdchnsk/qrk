@@ -940,3 +940,30 @@ func TestLetStatementScopes(t *testing.T) {
 
 	runCompilerTests(t, tests)
 }
+
+func TestStdLibFunctionCalls(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             `len("hello")`,
+			expectedConstants: []any{"hello"},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpGetStdlib, 0),
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpCall, 1),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+		{
+			input:             `print("hello world")`,
+			expectedConstants: []any{"hello world"},
+			expectedInstructions: []code.Instructions{
+				code.MakeInstruction(code.OpGetStdlib, 1),
+				code.MakeInstruction(code.OpConstant, 0),
+				code.MakeInstruction(code.OpCall, 1),
+				code.MakeInstruction(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
+}

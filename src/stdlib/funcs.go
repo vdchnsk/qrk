@@ -1,10 +1,12 @@
-package evaluator
+package stdlib
 
 import (
 	"fmt"
 
 	"github.com/vdchnsk/qrk/src/object"
 )
+
+var NULL = &object.Null{}
 
 func lenBuiltin(args ...object.Object) object.Object {
 	maxAllowedArgs := 1
@@ -35,11 +37,12 @@ func print(args ...object.Object) object.Object {
 	return NULL
 }
 
-var builtInFuncs = map[string]*object.BuiltInFunction{
-	"len": {
-		Fn: lenBuiltin,
-	},
-	"print": {
-		Fn: print,
-	},
+var Funcs = map[string]*object.BuiltInFunction{
+	"len":   {Fn: lenBuiltin},
+	"print": {Fn: print},
+}
+
+var FuncsSlice = []*object.BuiltInFunction{
+	{Fn: lenBuiltin, Name: "len"},
+	{Fn: print, Name: "print"},
 }

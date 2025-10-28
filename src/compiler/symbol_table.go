@@ -5,6 +5,7 @@ type SymbolScope string
 const (
 	GlobalScope SymbolScope = "GLOBAL"
 	LocalScope  SymbolScope = "LOCAL"
+	StdlibScope SymbolScope = "STD_LIB"
 )
 
 type Symbol struct {
@@ -51,6 +52,18 @@ func (s *SymbolTable) Define(name string) Symbol {
 	s.definitionsCount++
 
 	return symbol
+}
+
+func (s *SymbolTable) DefineStdlibFunc(index int, name string) Symbol {
+	sym := Symbol{
+		Name:  name,
+		Scope: StdlibScope,
+		Index: index,
+	}
+
+	s.store[name] = sym
+
+	return sym
 }
 
 func (s *SymbolTable) Resolve(name string) (Symbol, bool) {

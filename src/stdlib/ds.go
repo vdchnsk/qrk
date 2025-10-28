@@ -1,4 +1,4 @@
-package evaluator
+package stdlib
 
 type HashMap struct {
 	store []string

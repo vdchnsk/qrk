@@ -149,3 +149,34 @@ func TestResolveNestedLocal(t *testing.T) {
 		}
 	}
 }
+
+func TestDefineResolveStdlib(t *testing.T) {
+	global := NewSymbolTable()
+	local1 := NewEnclosedSymbolTable(global)
+	local2 := NewEnclosedSymbolTable(local1)
+
+	expected := []Symbol{
+		{Name: "a", Scope: StdlibScope, Index: 0},
+		{Name: "b", Scope: StdlibScope, Index: 1},
+		{Name: "c", Scope: StdlibScope, Index: 2},
+		{Name: "d", Scope: StdlibScope, Index: 3},
+	}
+
+	for i, symbol := range expected {
+		global.DefineStdlibFunc(i, symbol.Name)
+	}
+
+	for _, symbolTable := range []*SymbolTable{global, local1, local2} {
+		for _, symbol := range expected {
+			result, ok := symbolTable.Resolve(symbol.Name)
+			if !ok {
+				t.Errorf("name %s not resolvable", symbol.Name)
+				continue
+			}
+
+			if result != symbol {
+				t.Errorf("expected %s to resolve to %+v, got %+v", symbol.Name, symbol, result)
+			}
+		}
+	}
+}

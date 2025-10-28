@@ -534,3 +534,41 @@ func TestFunctionCalls_WrongArguments(t *testing.T) {
 		}
 	}
 }
+
+func TestStdLibFuncs_Len(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input:    `len("hello")`,
+			expected: 5,
+		},
+		{
+			input:    `len("")`,
+			expected: 0,
+		},
+		{
+			input:    `len("hello world")`,
+			expected: 11,
+		},
+	}
+
+	runVmTests(t, tests)
+}
+
+func TestStdLibFuncs_Print(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input:    `print("hello world")`,
+			expected: Null,
+		},
+		{
+			input:    `print(12345)`,
+			expected: Null,
+		},
+		{
+			input:    `print(true)`,
+			expected: Null,
+		},
+	}
+
+	runVmTests(t, tests)
+}
