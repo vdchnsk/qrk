@@ -350,6 +350,9 @@ func (vm *VM) callFunc(argsCount int) error {
 
 	case *object.BuiltInFunction:
 		args := vm.stack[basePointer:vm.stackPointer]
+		if len(args) != fn.ParamsCount {
+			return ErrWrongNumberOfArguments(fn.ParamsCount, len(args))
+		}
 
 		result := fn.Fn(args...)
 

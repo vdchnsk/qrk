@@ -165,8 +165,9 @@ func (cfn *CompiledFunction) Inspect() string {
 }
 
 type BuiltInFunction struct {
-	Name string
-	Fn   func(args ...Object) Object
+	Name        string
+	ParamsCount int
+	Fn          func(args ...Object) Object
 }
 
 func (fn *BuiltInFunction) Type() ObjectType { return BUILT_IN_OBJ }

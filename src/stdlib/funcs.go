@@ -43,6 +43,6 @@ var Funcs = map[string]*object.BuiltInFunction{
 }
 
 var FuncsSlice = []*object.BuiltInFunction{
-	{Fn: lenBuiltin, Name: "len"},
-	{Fn: print, Name: "print"},
+	{Fn: lenBuiltin, Name: "len", ParamsCount: 1},
+	{Fn: print, Name: "print", ParamsCount: 1},
 }
