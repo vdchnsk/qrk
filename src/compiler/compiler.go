@@ -48,7 +48,7 @@ func New() *Compiler {
 
 	symbolTable := NewSymbolTable()
 
-	for i, f := range stdlib.FuncsSlice {
+	for i, f := range stdlib.Funcs {
 		symbolTable.DefineStdlibFunc(i, f.Name)
 	}
 

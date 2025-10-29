@@ -37,9 +37,12 @@ func print(args ...object.Object) object.Object {
 	return NULL
 }
 
-var Funcs = map[string]*object.BuiltInFunction{
+var FuncsMap = map[string]*object.BuiltInFunction{
 	"len":   {Fn: lenBuiltin, Name: "len", ParamsCount: 1},
 	"print": {Fn: print, Name: "print", ParamsCount: 1},
 }
 
-var FuncsSlice = []*object.BuiltInFunction{Funcs["len"], Funcs["print"]}
+var Funcs = []*object.BuiltInFunction{
+	FuncsMap["len"],
+	FuncsMap["print"],
+}

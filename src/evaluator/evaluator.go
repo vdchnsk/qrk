@@ -347,7 +347,7 @@ func evalIdentifier(identifier string, env *object.Environment) object.Object {
 		return envFunc
 	}
 
-	if builtInFunc, ok := stdlib.Funcs[identifier]; ok {
+	if builtInFunc, ok := stdlib.FuncsMap[identifier]; ok {
 		return builtInFunc
 	}
 

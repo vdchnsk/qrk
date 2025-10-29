@@ -69,7 +69,7 @@ func Compile(input string, out io.Writer, symbolTable *compiler.SymbolTable, con
 		return nil
 	}
 
-	for i, f := range stdlib.FuncsSlice {
+	for i, f := range stdlib.Funcs {
 		symbolTable.DefineStdlibFunc(i, f.Name)
 	}
 

@@ -233,7 +233,7 @@ func (vm *VM) Run() error {
 			}
 			vm.curStackFrame().ip += op.OperandWidths[0]
 
-			if err := vm.stackPush(stdlib.FuncsSlice[funcIndex]); err != nil {
+			if err := vm.stackPush(stdlib.Funcs[funcIndex]); err != nil {
 				return err
 			}
 
