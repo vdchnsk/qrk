@@ -349,10 +349,11 @@ func (vm *VM) callFunc(argsCount int) error {
 		vm.createStackVacuum(stackFrame.basePointer, fn.LocalsCount)
 
 	case *object.BuiltInFunction:
-		args := vm.stack[basePointer:vm.stackPointer]
-		if len(args) != fn.ParamsCount {
-			return ErrWrongNumberOfArguments(fn.ParamsCount, len(args))
+		if argsCount != fn.ParamsCount {
+			return ErrWrongNumberOfArguments(fn.ParamsCount, argsCount)
 		}
+
+		args := vm.stack[basePointer:vm.stackPointer]
 
 		result := fn.Fn(args...)
 
